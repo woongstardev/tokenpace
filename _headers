@@ -1,0 +1,21 @@
+# Response headers for Cloudflare Workers static assets (and Pages, same format).
+#
+# The <meta> CSP in index.html is the fallback for anyone serving these files
+# some other way. This is the real one — it can carry frame-ancestors, which a
+# meta tag cannot.
+#
+# The policy is deliberately absolute: this site loads nothing from anywhere.
+# No fonts, no analytics, no CDN. If a future change needs an exception, that
+# exception is the thing to argue about, not this file.
+
+/*
+  Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; upgrade-insecure-requests
+  Referrer-Policy: no-referrer
+  X-Content-Type-Options: nosniff
+  Cross-Origin-Opener-Policy: same-origin
+  Permissions-Policy: accelerometer=(), camera=(), geolocation=(), gyroscope=(), microphone=(), payment=(), usb=()
+
+# The vendored tokenizer is content-addressed by its pinned version and never
+# changes in place, so it can be cached hard.
+/assets/vendor/*
+  Cache-Control: public, max-age=31536000, immutable

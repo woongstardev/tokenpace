@@ -71,6 +71,10 @@ export const TOKENIZERS = [
   { id: 'mistral-small', label: 'Mistral Small 3', kind: 'hf', repo: 'unsloth/Mistral-Small-24B-Instruct-2501' },
 ];
 
+/** Built-in demo texts, in the order the site offers them. The first is the
+ *  default: the register an LLM answer is most likely to be in. */
+export const SAMPLE_ORDER = ['explainer', 'chat', 'technical'];
+
 /** Languages reported, in display order. */
 export const LANGUAGES = [
   { id: 'en', label: 'English' },

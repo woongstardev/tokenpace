@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="ko" data-theme="auto">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- frame-ancestors is deliberately absent: it is ignored in a meta tag.
+     The full policy, including it, is served as a real header via _headers. -->
+<meta http-equiv="Content-Security-Policy"
+      content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; base-uri 'none'; form-action 'none'">
+<title>tokenpace — tok/s를 내 읽기 속도에 견줘 보기</title>
+<meta name="description" content="LLM의 초당 토큰 수가 내 언어에서 실제로 얼마나 빠른지, 내가 읽는 속도에 견줘 재봅니다. 언어별 토큰 밀도와 TTFT를 포함한 실측 기반 시뮬레이터.">
+<meta property="og:title" content="tokenpace">
+<meta property="og:description" content="tok/s가 내 언어에서 실제로 얼마나 빠른지, 내 읽기 속도에 견줘 재봅니다.">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="assets/css/app.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext y='26' font-size='26'%3E%E2%8F%B1%3C/text%3E%3C/svg%3E">
+</head>
+<body>
+
+<a class="skip-link" href="#lanes" data-i18n="skipToLanes">본문으로 건너뛰기</a>
+
+<header class="site-header">
+  <div class="wrap header-inner">
+    <div class="brand">
+      <h1>tokenpace</h1>
+      <p class="tagline" data-i18n="tagline">tok/s가 내 언어에서 실제로 얼마나 빠른지, 내가 읽는 속도에 견줘 재봅니다.</p>
+    </div>
+    <div class="header-actions">
+      <div class="seg" role="group" aria-label="Language">
+        <button type="button" class="seg-btn" data-lang="ko" aria-pressed="true">한국어</button>
+        <button type="button" class="seg-btn" data-lang="en" aria-pressed="false">English</button>
+      </div>
+      <button type="button" id="theme-toggle" class="icon-btn" aria-label="테마 전환" data-i18n-aria="themeToggle">
+        <span aria-hidden="true" id="theme-icon">◐</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<noscript>
+  <div class="wrap notice">
+    <p>이 페이지는 스트리밍을 실시간으로 재현하므로 JavaScript가 필요합니다.
+       측정값 자체는 저장소의 <code>docs/token-density.md</code>와 <code>docs/reading-speed.md</code>에서
+       그대로 읽을 수 있습니다.</p>
+  </div>
+</noscript>
+
+<main class="wrap">
+
+  <!-- ─────────────────────────────────────────────── controls -->
+  <section class="panel controls" aria-labelledby="controls-h">
+    <h2 id="controls-h" class="sr-only" data-i18n="controlsHeading">설정</h2>
+
+    <div class="control-grid">
+
+      <div class="field">
+        <label for="sample-select" data-i18n="labelText">텍스트</label>
+        <select id="sample-select"></select>
+        <p class="hint" data-i18n="hintText">문체에 따라 토큰 밀도가 달라집니다.</p>
+      </div>
+
+      <div class="field">
+        <label for="tokenizer-select" data-i18n="labelModel">모델 (토크나이저)</label>
+        <select id="tokenizer-select"></select>
+        <p class="hint" id="density-hint"></p>
+      </div>
+
+      <div class="field">
+        <label for="ttft-input" data-i18n="labelTtft">TTFT — 첫 토큰까지 대기</label>
+        <div class="slider-row">
+          <input type="range" id="ttft-input" min="0" max="10" step="0.1" value="0.8">
+          <output for="ttft-input" id="ttft-output" class="numout">0.8s</output>
+        </div>
+        <p class="hint" data-i18n="hintTtft">모델이 첫 글자를 내놓기 전까지의 침묵. 디코딩 속도와 별개입니다.</p>
+      </div>
+
+      <div class="field">
+        <label for="reading-input" data-i18n="labelReading">내 읽기 속도</label>
+        <div class="slider-row">
+          <input type="range" id="reading-input" min="100" max="1600" step="10" value="550">
+          <output for="reading-input" id="reading-output" class="numout">550</output>
+        </div>
+        <p class="hint">
+          <span id="reading-source-note"></span>
+          <button type="button" id="measure-reading" class="linklike" data-i18n="measureMine">내 속도 직접 재기</button>
+        </p>
+      </div>
+
+    </div>
+
+    <fieldset class="lanes-config">
+      <legend data-i18n="labelLanes">비교할 속도 (tok/s)</legend>
+      <div id="speed-inputs" class="speed-inputs"></div>
+      <button type="button" id="add-lane" class="ghost-btn" data-i18n="addLane">+ 레인 추가</button>
+    </fieldset>
+
+    <div class="actions">
+      <button type="button" id="play" class="primary-btn" data-i18n="play">▶ 시작</button>
+      <button type="button" id="reset" class="ghost-btn" data-i18n="reset">↺ 초기화</button>
+      <button type="button" id="share" class="ghost-btn" data-i18n="share">🔗 링크 복사</button>
+      <span id="share-feedback" class="share-feedback" role="status"></span>
+    </div>
+  </section>
+
+  <!-- ─────────────────────────────────────────────── lanes -->
+  <section id="lanes" aria-labelledby="lanes-h">
+    <h2 id="lanes-h" class="section-h" data-i18n="lanesHeading">스트리밍 비교</h2>
+    <p class="reduced-motion-note" id="reduced-motion-note" hidden data-i18n="reducedMotionNote">
+      시스템 설정이 「모션 줄이기」라서 애니메이션 대신 시간대별 스냅샷으로 보여줍니다.
+    </p>
+    <div id="lane-list" class="lane-list"></div>
+  </section>
+
+  <!-- ─────────────────────────────────────────────── verdict -->
+  <section class="panel" aria-labelledby="verdict-h">
+    <h2 id="verdict-h" class="section-h" data-i18n="verdictHeading">판정</h2>
+    <div id="verdict" class="verdict" aria-live="polite"></div>
+  </section>
+
+  <!-- ─────────────────────────────────────────────── evidence -->
+  <section class="panel evidence" aria-labelledby="evidence-h">
+    <h2 id="evidence-h" class="section-h" data-i18n="evidenceHeading">이 숫자는 어디서 왔나</h2>
+    <div id="evidence"></div>
+  </section>
+
+</main>
+
+<footer class="site-footer wrap">
+  <p id="footer-text"></p>
+</footer>
+
+<!-- ─────────────────────────────────────────────── reading-speed test -->
+<dialog id="reading-dialog" class="dialog" aria-labelledby="rt-title">
+  <form method="dialog" class="dialog-inner">
+    <h2 id="rt-title" data-i18n="rtTitle">읽기 속도 재기</h2>
+    <p class="hint" data-i18n="rtIntro">
+      아래 글을 평소 속도로 읽으세요. 다 읽으면 버튼을 누릅니다. 평균값이 아니라 당신의 값을 씁니다.
+    </p>
+    <div id="rt-passage" class="rt-passage" tabindex="0"></div>
+    <div class="dialog-actions">
+      <button type="button" id="rt-start" class="primary-btn" data-i18n="rtStart">시작</button>
+      <button type="button" id="rt-done" class="primary-btn" disabled data-i18n="rtDone">다 읽었습니다</button>
+      <button type="submit" value="cancel" class="ghost-btn" data-i18n="rtCancel">닫기</button>
+    </div>
+    <p id="rt-result" class="rt-result" role="status"></p>
+  </form>
+</dialog>
+
+<script type="module" src="assets/js/main.js"></script>
+</body>
+</html>

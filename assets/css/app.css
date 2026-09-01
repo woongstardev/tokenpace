@@ -1,0 +1,382 @@
+/*
+ * app.css — one stylesheet, no build step, no external fonts.
+ *
+ * Colours are defined once on :root as the light palette, then overridden in
+ * two places: the system-dark media query (guarded so an explicit light choice
+ * wins) and the explicit dark attribute. Nothing gets its only definition
+ * inside a media query.
+ */
+
+:root {
+  color-scheme: light;
+
+  --bg:            #fbfbfa;
+  --bg-panel:      #ffffff;
+  --bg-sunken:     #f2f2f0;
+  --border:        #e2e2dd;
+  --border-strong: #c9c9c2;
+
+  /* Every foreground/background pair used by the layout clears WCAG AA (4.5:1).
+     Verified by tools/check-a11y.mjs, which fails CI if a change breaks it. */
+  --text:          #1b1b19;
+  --text-muted:    #63635c;
+  --text-faint:    #6f6f68;
+
+  --accent:        #a94a17;
+  --accent-soft:   #fbeee6;
+  --on-accent:     #ffffff;
+  --baseline:      #256456;
+  --baseline-soft: #eef7f4;
+  --warn:          #7a5600;
+
+  --radius:   10px;
+  --radius-s: 6px;
+  --wrap:     1080px;
+
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --sans: system-ui, -apple-system, "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR",
+          "Malgun Gothic", Roboto, sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+
+    --bg:            #131315;
+    --bg-panel:      #1b1b1e;
+    --bg-sunken:     #232327;
+    --border:        #33333a;
+    --border-strong: #4a4a53;
+
+    --text:          #ececeb;
+    --text-muted:    #adada7;
+    --text-faint:    #9a9a94;
+
+    --accent:        #f0925c;
+    --accent-soft:   #3a2418;
+    --on-accent:     #17130f;
+    --baseline:      #6fc7ae;
+    --baseline-soft: #17322b;
+    --warn:          #e0b354;
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --bg:            #131315;
+  --bg-panel:      #1b1b1e;
+  --bg-sunken:     #232327;
+  --border:        #33333a;
+  --border-strong: #4a4a53;
+
+  --text:          #ececeb;
+  --text-muted:    #adada7;
+  --text-faint:    #9a9a94;
+
+  --accent:        #f0925c;
+  --accent-soft:   #3a2418;
+  --on-accent:     #17130f;
+  --baseline:      #6fc7ae;
+  --baseline-soft: #17322b;
+  --warn:          #e0b354;
+}
+
+/* ───────────────────────────────────────────────────────────────── base */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-text-size-adjust: 100%;
+
+  /* Browsers break Korean between any two syllables by default, which chops
+     words in half mid-sentence. keep-all restores word-level wrapping; the
+     overflow-wrap fallback keeps a long unbreakable run from escaping its box. */
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+h1, h2, h3 { line-height: 1.25; margin: 0; font-weight: 650; }
+p { margin: 0; }
+a { color: var(--accent); text-underline-offset: 2px; }
+
+.wrap {
+  max-inline-size: var(--wrap);
+  margin-inline: auto;
+  padding-inline: clamp(16px, 4vw, 32px);
+}
+
+.sr-only {
+  position: absolute; inline-size: 1px; block-size: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip-path: inset(50%); white-space: nowrap;
+}
+
+.skip-link {
+  position: absolute; inset-block-start: -60px; inset-inline-start: 12px;
+  z-index: 10; padding: 10px 16px;
+  background: var(--bg-panel); border: 1px solid var(--border-strong);
+  border-radius: var(--radius-s);
+  transition: inset-block-start .15s;
+}
+.skip-link:focus { inset-block-start: 12px; }
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ─────────────────────────────────────────────────────────────── header */
+
+.site-header {
+  border-block-end: 1px solid var(--border);
+  background: var(--bg-panel);
+  padding-block: 20px;
+}
+.header-inner {
+  display: flex; flex-wrap: wrap; gap: 16px;
+  align-items: flex-start; justify-content: space-between;
+}
+.brand h1 {
+  font-size: 1.45rem; letter-spacing: -0.02em;
+  font-family: var(--mono);
+}
+.tagline {
+  margin-block-start: 4px;
+  color: var(--text-muted);
+  font-size: .92rem;
+  max-inline-size: 62ch;
+}
+.brand { flex: 1 1 22rem; }
+.header-actions { display: flex; gap: 8px; align-items: center; }
+
+.seg {
+  display: inline-flex;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-s);
+  overflow: hidden;
+}
+.seg-btn {
+  appearance: none; border: 0; cursor: pointer;
+  background: var(--bg-panel); color: var(--text-muted);
+  padding: 6px 12px; font: inherit; font-size: .85rem;
+}
+.seg-btn[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+
+.icon-btn {
+  appearance: none; cursor: pointer;
+  background: var(--bg-panel); color: var(--text-muted);
+  border: 1px solid var(--border-strong); border-radius: var(--radius-s);
+  inline-size: 34px; block-size: 34px; font-size: 1rem; line-height: 1;
+}
+.icon-btn.small { inline-size: 26px; block-size: 26px; font-size: .9rem; }
+
+/* ───────────────────────────────────────────────────────────── sections */
+
+main { padding-block: 24px 48px; display: grid; gap: 24px; }
+
+.panel {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: clamp(16px, 3vw, 24px);
+}
+
+.section-h {
+  font-size: .78rem; text-transform: uppercase; letter-spacing: .08em;
+  color: var(--text-faint); margin-block-end: 12px;
+}
+
+.notice {
+  border: 1px solid var(--warn); border-radius: var(--radius);
+  padding: 14px; margin-block: 16px; font-size: .9rem;
+}
+
+/* ─────────────────────────────────────────────────────────── controls */
+
+.control-grid {
+  display: grid; gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+.field { display: grid; gap: 6px; align-content: start; }
+.field > label, .lanes-config legend {
+  font-size: .82rem; font-weight: 600; color: var(--text-muted);
+}
+.hint { font-size: .78rem; color: var(--text-faint); line-height: 1.5; }
+
+select, input[type="number"], textarea {
+  font: inherit; color: var(--text);
+  background: var(--bg-sunken);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-s);
+  padding: 7px 9px;
+  inline-size: 100%;
+}
+textarea { resize: vertical; font-size: .9rem; line-height: 1.6; }
+
+.slider-row { display: flex; gap: 10px; align-items: center; }
+.slider-row input[type="range"] { flex: 1; min-inline-size: 0; accent-color: var(--accent); }
+.numout {
+  font-family: var(--mono); font-size: .82rem;
+  min-inline-size: 8ch; text-align: end; color: var(--text-muted);
+}
+
+.linklike {
+  appearance: none; background: none; border: 0; padding: 0;
+  font: inherit; font-size: .78rem;
+  color: var(--accent); cursor: pointer; text-decoration: underline;
+}
+
+.lanes-config {
+  margin-block-start: 20px; padding: 14px;
+  border: 1px solid var(--border); border-radius: var(--radius-s);
+}
+.speed-inputs { display: flex; flex-wrap: wrap; gap: 10px; margin-block: 10px; }
+.speed-row { display: flex; align-items: center; gap: 6px; }
+.speed-row input { inline-size: 5.5rem; }
+.speed-row .unit { font-size: .78rem; color: var(--text-faint); }
+
+.actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-block-start: 18px; }
+.primary-btn, .ghost-btn {
+  appearance: none; cursor: pointer; font: inherit; font-size: .9rem;
+  border-radius: var(--radius-s); padding: 8px 16px;
+  border: 1px solid var(--border-strong);
+  background: var(--bg-sunken); color: var(--text);
+}
+/* The text colour on an accent fill has to flip with the theme. Doing it with a
+   :not([data-theme="light"]) selector looked right and was wrong: "auto" is also
+   not "light", so light-mode visitors got dark-on-orange. It is a token now. */
+.primary-btn { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 600; }
+.primary-btn:disabled, .ghost-btn:disabled { opacity: .45; cursor: not-allowed; }
+.share-feedback { font-size: .8rem; color: var(--text-muted); }
+
+/* ──────────────────────────────────────────────────────────────── lanes */
+
+.lane-list { display: grid; gap: 12px; }
+
+.lane {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px 12px;
+}
+.lane--baseline {
+  border-color: var(--baseline);
+  background: var(--baseline-soft);
+}
+
+.lane-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.lane-title { font-size: .95rem; font-family: var(--mono); }
+.lane--baseline .lane-title { color: var(--baseline); }
+.lane-meta { font-size: .75rem; color: var(--text-faint); font-family: var(--mono); white-space: nowrap; }
+
+.lane-text {
+  margin-block: 8px;
+  /* Fixed height, not auto: lanes must not resize while racing, or the whole
+     page jitters as the fastest one outgrows the others. */
+  min-block-size: 4.8em;
+  max-block-size: 4.8em;
+  overflow: hidden;
+  font-size: .88rem; line-height: 1.6;
+  white-space: pre-wrap; word-break: break-word;
+  /* Keep the newest text in view as it grows past the box. */
+  display: flex; flex-direction: column; justify-content: flex-end;
+}
+.lane-text.is-waiting::after {
+  content: "▍";
+  color: var(--text-faint);
+  animation: blink 1s steps(2, start) infinite;
+}
+@keyframes blink { to { visibility: hidden; } }
+
+.lane-bar { block-size: 4px; background: var(--bg-sunken); border-radius: 2px; overflow: hidden; }
+.lane-bar-fill { block-size: 100%; inline-size: 0; background: var(--accent); }
+.lane--baseline .lane-bar-fill { background: var(--baseline); }
+
+.reduced-motion-note {
+  font-size: .8rem; color: var(--text-muted);
+  background: var(--bg-sunken); border-radius: var(--radius-s);
+  padding: 8px 12px; margin-block-end: 12px;
+}
+
+/* Reduced-motion timeline table */
+.timeline {
+  inline-size: 100%; border-collapse: collapse; font-size: .8rem;
+  display: block; overflow-x: auto;
+}
+.timeline:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.timeline th, .timeline td {
+  border: 1px solid var(--border); padding: 8px 10px;
+  text-align: start; vertical-align: top; min-inline-size: 9rem;
+}
+.timeline thead th { color: var(--text-faint); font-weight: 600; white-space: nowrap; }
+.timeline tbody th { font-family: var(--mono); white-space: nowrap; }
+.timeline .row--baseline { background: var(--baseline-soft); }
+.cell-pct { display: block; font-family: var(--mono); color: var(--text-muted); }
+.cell-text { display: block; color: var(--text-faint); font-size: .72rem; margin-block-start: 2px; }
+
+/* ────────────────────────────────────────────────────────────── verdict */
+
+.verdict { display: grid; gap: 12px; }
+.verdict-intro { font-size: .9rem; color: var(--text-muted); }
+.verdict-row {
+  border-inline-start: 3px solid var(--border-strong);
+  padding-inline-start: 12px;
+}
+.verdict-row.is-ok { border-inline-start-color: var(--baseline); }
+.verdict-row.is-slow { border-inline-start-color: var(--warn); }
+.verdict-line { font-size: .95rem; }
+.verdict-sub { font-size: .8rem; color: var(--text-muted); }
+.verdict-ttft { color: var(--accent); }
+
+/* ───────────────────────────────────────────────────────────── evidence */
+
+.evidence { font-size: .85rem; }
+.evidence-line { margin-block-end: 8px; color: var(--text-muted); }
+.evidence-line strong { color: var(--text); }
+.evidence-line.muted { color: var(--text-faint); }
+.fidelity--approximate { color: var(--warn); }
+.caveats { margin-block-start: 12px; font-size: .82rem; color: var(--text-muted); }
+.caveats summary { cursor: pointer; color: var(--text); font-weight: 600; }
+.caveats ul { margin-block: 8px 0; padding-inline-start: 1.2em; display: grid; gap: 6px; }
+
+.site-footer {
+  padding-block: 24px 40px;
+  border-block-start: 1px solid var(--border);
+  font-size: .78rem; color: var(--text-faint);
+}
+
+/* ──────────────────────────────────────────────────────────────── dialog */
+
+.dialog {
+  border: 1px solid var(--border-strong); border-radius: var(--radius);
+  background: var(--bg-panel); color: var(--text);
+  padding: 0; max-inline-size: min(640px, 92vw);
+}
+.dialog::backdrop { background: rgb(0 0 0 / .5); }
+.dialog-inner { padding: clamp(16px, 4vw, 28px); display: grid; gap: 12px; }
+.rt-passage {
+  background: var(--bg-sunken); border-radius: var(--radius-s);
+  padding: 14px; font-size: .92rem; line-height: 1.75;
+  max-block-size: 46vh; overflow-y: auto;
+  filter: blur(5px); user-select: none;
+}
+.rt-passage.is-revealed { filter: none; user-select: auto; }
+.dialog-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.rt-result { font-size: .88rem; color: var(--accent); min-block-size: 1.4em; }
+
+/* ───────────────────────────────────────────────── reduced motion */
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+  }
+}
