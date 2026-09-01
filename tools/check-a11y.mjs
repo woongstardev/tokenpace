@@ -22,7 +22,9 @@ import path from 'node:path';
 import { REPO_ROOT } from './corpus-config.mjs';
 
 const PORT = 8791;
-const DEBUG_PORT = 9351;
+/** Each scenario gets its own debug port. A killed Chrome can hold its port for
+ *  a moment, and reusing one turns that into an intermittent CI failure. */
+const DEBUG_PORT_BASE = 9351;
 
 const CHROME_CANDIDATES = [
   process.env.CHROME,
@@ -40,6 +42,28 @@ const MIME = {
 };
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+/**
+ * Poll until a condition holds, or give up.
+ *
+ * Everything below used to be a fixed sleep. That passed locally and failed on
+ * a CI runner where Chrome took a moment longer to open its debug port —
+ * the classic shape of a flaky test. Nothing here waits on a guess any more.
+ */
+async function until(describe, check, { timeoutMs = 20_000, intervalMs = 150 } = {}) {
+  const deadline = Date.now() + timeoutMs;
+  let lastError;
+  while (Date.now() < deadline) {
+    try {
+      const value = await check();
+      if (value) return value;
+    } catch (err) {
+      lastError = err;
+    }
+    await sleep(intervalMs);
+  }
+  throw new Error(`timed out waiting for ${describe}${lastError ? ` (${lastError.message})` : ''}`);
+}
 
 /** The states a real visitor arrives in. Each gets its own audit. */
 const SCENARIOS = [
@@ -117,10 +141,11 @@ async function connect(wsUrl) {
   return { send, evaluate, close: () => socket.close() };
 }
 
-async function auditScenario(chromePath, axeSource, scenario) {
+async function auditScenario(chromePath, axeSource, scenario, index) {
+  const debugPort = DEBUG_PORT_BASE + index;
   const args = [
     '--headless=new',
-    `--remote-debugging-port=${DEBUG_PORT}`,
+    `--remote-debugging-port=${debugPort}`,
     '--no-sandbox',
     '--disable-gpu',
     'about:blank',
@@ -129,9 +154,12 @@ async function auditScenario(chromePath, axeSource, scenario) {
 
   const chrome = spawn(chromePath, args, { stdio: 'ignore' });
   try {
-    await sleep(2200);
+    await until(`Chrome to open its debug port (${debugPort})`, async () => {
+      const res = await fetch(`http://127.0.0.1:${debugPort}/json/version`);
+      return res.ok;
+    });
     const tab = await (
-      await fetch(`http://127.0.0.1:${DEBUG_PORT}/json/new?about:blank`, { method: 'PUT' })
+      await fetch(`http://127.0.0.1:${debugPort}/json/new?about:blank`, { method: 'PUT' })
     ).json();
     const cdp = await connect(tab.webSocketDebuggerUrl);
 
@@ -146,7 +174,12 @@ async function auditScenario(chromePath, axeSource, scenario) {
       });
     }
     await cdp.send('Page.navigate', { url: `http://127.0.0.1:${PORT}${scenario.url}` });
-    await sleep(1800);
+
+    // The page renders lanes (or, under reduced motion, a timeline table) as
+    // soon as its module has run. Waiting for that beats waiting for a duration.
+    await until('the page to finish rendering', () =>
+      cdp.evaluate('document.querySelectorAll(".lane, table.timeline").length > 0')
+    );
 
     await cdp.evaluate(axeSource);
     const results = await cdp.evaluate(
@@ -167,7 +200,6 @@ async function auditScenario(chromePath, axeSource, scenario) {
     return { violations: JSON.parse(results), overflow };
   } finally {
     chrome.kill();
-    await sleep(400);
   }
 }
 
@@ -184,7 +216,12 @@ async function main() {
 
   try {
     for (const scenario of SCENARIOS) {
-      const { violations, overflow } = await auditScenario(chromePath, axeSource, scenario);
+      const { violations, overflow } = await auditScenario(
+        chromePath,
+        axeSource,
+        scenario,
+        SCENARIOS.indexOf(scenario)
+      );
 
       if (!violations.length && overflow <= 0) {
         console.log(`  ok   ${scenario.name}`);
