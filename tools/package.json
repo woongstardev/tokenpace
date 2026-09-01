@@ -14,7 +14,8 @@
     "build-site": "node build-site-data.mjs",
     "vendor": "node vendor-tokenizer.mjs",
     "check": "node check-site.mjs && node --test \"../tests/*.test.mjs\"",
-    "check-a11y": "node check-a11y.mjs"
+    "check-a11y": "node check-a11y.mjs",
+    "capture": "node capture.mjs"
   },
   "devDependencies": {
     "@huggingface/transformers": "^3.7.0",

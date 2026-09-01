@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="ko" data-theme="light">
+<head>
+<meta charset="utf-8">
+<title>tokenpace — social card</title>
+<!--
+  The source of assets/og.png. Rendered to a PNG by tools/capture.mjs; never
+  served. It is a separate page rather than a crop of the site because a crop
+  carries no name and no claim, and a social card is mostly read at thumbnail
+  size.
+
+  Every figure on it is imported from the generated measurements below, so the
+  card cannot keep advertising a number the project has stopped standing behind.
+-->
+<link rel="stylesheet" href="../assets/css/app.css">
+<style>
+  html, body { margin: 0; padding: 0; }
+  body {
+    inline-size: 1200px; block-size: 630px;
+    display: flex; flex-direction: column; justify-content: center;
+    gap: 30px;
+    padding: 0 72px;
+    box-sizing: border-box;
+    background: var(--bg);
+    overflow: hidden;
+  }
+  .wordmark {
+    font-family: var(--mono); font-size: 30px; font-weight: 700;
+    color: var(--accent); letter-spacing: -0.01em;
+  }
+  h1 {
+    margin: 0; font-size: 60px; line-height: 1.16; letter-spacing: -0.02em;
+    color: var(--text);
+  }
+  h1 b { color: var(--baseline); font-weight: 700; }
+  .sub { margin: 16px 0 0; font-size: 26px; color: var(--text-muted); }
+
+  .bars { display: grid; gap: 14px; }
+  .bar { display: grid; grid-template-columns: 210px 1fr; align-items: center; gap: 20px; }
+  .bar-label { font-family: var(--mono); font-size: 22px; color: var(--text); text-align: end; }
+  .bar-track { block-size: 26px; background: var(--bg-sunken); border-radius: 6px; }
+  .bar-fill { block-size: 100%; border-radius: 6px; background: var(--accent); }
+  .baseline .bar-label { color: var(--baseline); font-weight: 700; }
+  .baseline .bar-fill { background: var(--baseline); }
+
+  .foot { margin: 0; font-family: var(--mono); font-size: 18px; color: var(--text-faint); }
+</style>
+</head>
+<body>
+
+<div class="wordmark">tokenpace</div>
+
+<div>
+  <h1 id="headline"></h1>
+  <p class="sub" id="sub"></p>
+</div>
+
+<div class="bars" id="bars"></div>
+
+<p class="foot" id="foot"></p>
+
+<script type="module">
+import { MEASURED_AT, TOKENIZERS, READING_PACE } from '../assets/data/density.js';
+
+const TOK = 'o200k_base';
+const tokenizer = TOKENIZERS.find((t) => t.id === TOK);
+const reading = READING_PACE.ko.tokensPerSecond[TOK];
+const speeds = [10, 35];
+const max = Math.max(reading, ...speeds);
+
+document.getElementById('headline').innerHTML =
+  `사람이 읽는 속도는 <b>${reading.toFixed(1)} tok/s</b> 입니다.`;
+document.getElementById('sub').textContent =
+  `The baseline that every tok/s benchmark leaves out.`;
+
+const row = (label, tps, isBaseline) => `
+  <div class="bar${isBaseline ? ' baseline' : ''}">
+    <div class="bar-label">${label}</div>
+    <div class="bar-track"><div class="bar-fill" style="inline-size: ${(tps / max) * 100}%"></div></div>
+  </div>`;
+
+document.getElementById('bars').innerHTML = [
+  row(`읽기 · reading`, reading, true),
+  ...speeds.map((s) => row(`${s} tok/s`, s, false)),
+].join('');
+
+document.getElementById('foot').textContent =
+  `${tokenizer.label} · 한국어 1 token ≈ ${tokenizer.charsPerToken.ko.toFixed(2)}자 · TED2020 3,000 sentence pairs · ${MEASURED_AT}`;
+
+document.documentElement.dataset.cardReady = 'true';
+</script>
+
+</body>
+</html>

@@ -205,8 +205,15 @@ v1 은 "정확 토크나이저는 wasm + vocab 수 MB라 과하다"고 판단했
 7. ✅ OSS 골격 — `LICENSE`(MIT) · `LICENSES.md` · `CONTRIBUTING.md` · `CODE_OF_CONDUCT.md` ·
    `AGENTS.md` · `_headers`(CSP) · `tests/`(node:test 17건) · `tools/check-site.mjs`(불변식) ·
    `tools/check-a11y.mjs`(axe 4상태) · GitHub Actions 3잡
-8. ⬜ 로컬 미리보기로 유지보수자에게 시연 → 피드백
+8. 🟡 **시연 자료 준비 완료 — 피드백 대기.** `tools/capture.mjs` 로 실제 페이지를 찍어
+   `docs/screenshots/` 에 커밋했고(라이트·다크/영문·모바일 390px·모션 줄이기), README 상단에 걸었다.
+   OG 카드(`assets/og.png`)도 전용 페이지 `tools/og-card.html` 에서 생성한다 — §3 "동적 OG 없음, 커밋된 PNG까지" 그대로.
+   직접 만져 볼 때는 리포 루트에서 `python3 -m http.server 8000`
 9. ⬜ 공개 여부 결재 요청 (§6 — 라이선스 확정 포함)
+
+**배포 시 잊지 말 것** (2번 결재가 나면): ① `index.html` 의 `og:image` 를 절대 URL 로 박는다
+(현재는 도메인 미결이라 상대 경로 — Facebook 은 절대 URL 을 요구한다) ② Workers 정적 자산에서
+`tools/`·`tests/`·`corpus/` 를 제외한다.
 
 ---
 

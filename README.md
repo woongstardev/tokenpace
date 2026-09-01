@@ -9,6 +9,20 @@ lets you watch the result stream past a baseline that is your own.
 
 > Status: **pre-release.** Not deployed yet. Runs locally — see [Running it](#running-it).
 
+![The page mid-stream: a reading-speed lane and three tok/s lanes racing through the same Korean paragraph](docs/screenshots/site-light.png)
+
+<details>
+<summary>English, dark, and on a phone</summary>
+
+![The same page in English and dark theme](docs/screenshots/site-dark-en.png)
+
+![The page at 390px wide](docs/screenshots/site-mobile.png)
+
+</details>
+
+Screenshots are generated from the real page — `node tools/capture.mjs` — so
+they cannot quietly stop matching it.
+
 ---
 
 ## What is different here
@@ -103,7 +117,16 @@ node tools/check-site.mjs        # project invariants: no external requests, int
 node tools/check-a11y.mjs        # axe, across light / dark / reduced-motion / 390px
 ```
 
-CI runs all three on every push, and re-derives every published figure from the
+Images (README screenshots and the social card) regenerate from the page itself:
+
+```sh
+node tools/capture.mjs
+```
+
+They are committed rather than checked: a screenshot of an animation is never
+byte-identical twice, so CI has no way to verify one.
+
+CI runs those three on every push, and re-derives every published figure from the
 raw corpora weekly — if a fresh run ever disagrees with what is committed, the
 numbers in `docs/` have stopped being reproducible and the build fails.
 
@@ -112,6 +135,7 @@ numbers in `docs/` have stopped being reproducible and the build fails.
 ```
 index.html              the whole page
 assets/
+  og.png                GENERATED — the social card
   css/app.css           one stylesheet, light and dark
   js/
     main.js             wiring: state → render, event handlers
@@ -125,8 +149,8 @@ assets/
   vendor/               GENERATED — the tokenizer, vendored (MIT)
 corpus/                 sample texts (CC0) + checksums for the downloaded corpus
 data/                   GENERATED measurements + hand-curated sources
-docs/                   GENERATED reports
-tools/                  the measurement harness
+docs/                   GENERATED reports + screenshots
+tools/                  the measurement harness, the checkers, the screenshotter
 tests/                  node:test
 ```
 
@@ -150,6 +174,8 @@ fix and [`tests/site.test.mjs`](tests/site.test.mjs) pins it.
 it, the lanes become a table of timed snapshots carrying the same information.
 `aria-live` is on the verdict, never on the streaming text — announcing every
 token would make a screen reader unusable.
+
+![Under reduced motion the lanes become a table of timed snapshots, followed by the verdict and the sources](docs/screenshots/site-reduced-motion.png)
 
 **Privacy.** No backend, no analytics, no cookies, no storage. State lives in
 the URL, which is also how sharing works. The Content Security Policy in

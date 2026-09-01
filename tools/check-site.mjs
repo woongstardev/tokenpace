@@ -186,6 +186,33 @@ async function checkSources() {
   if (!failures.some((f) => f.startsWith(check))) ok(check);
 }
 
+/* ─────────────────────── 7. every local asset the page names actually exists */
+
+/**
+ * A stylesheet or a social card that 404s is invisible in review and obvious to
+ * a visitor. og:image is included because nothing else ever loads it: a broken
+ * card only shows up as an empty box in someone else's chat client.
+ */
+async function checkLocalAssets() {
+  const check = 'local assets referenced by the page exist';
+  const html = await readFile(path.join(ROOT, 'index.html'), 'utf8');
+
+  const referenced = [
+    ...[...html.matchAll(/\s(?:src|href)\s*=\s*"([^"]*)"/g)].map((m) => m[1]),
+    ...[...html.matchAll(/property="og:image"\s+content="([^"]*)"/g)].map((m) => m[1]),
+  ];
+
+  let checked = 0;
+  for (const ref of referenced) {
+    if (/^(https?:|data:|mailto:|#)/.test(ref) || !ref) continue;
+    checked++;
+    if (!(await exists(path.join(ROOT, ref.split(/[?#]/)[0])))) {
+      fail(check, `index.html references missing ${ref}`);
+    }
+  }
+  if (!failures.some((f) => f.startsWith(check))) ok(`${check} (${checked} references)`);
+}
+
 /* ──────────────────────────────────────────────────────────────────── run */
 
 console.log('Checking project invariants...\n');
@@ -195,6 +222,7 @@ await checkVendor();
 await checkGeneratedMarkers();
 await checkLinks();
 await checkSources();
+await checkLocalAssets();
 
 if (failures.length) {
   console.error(`\n${failures.length} problem(s):`);
