@@ -12,10 +12,13 @@
     "derive": "node derive-pace.mjs",
     "all": "npm run fetch-corpus && npm run measure && npm run derive && npm run build-site",
     "build-site": "node build-site-data.mjs",
-    "vendor": "node vendor-tokenizer.mjs"
+    "vendor": "node vendor-tokenizer.mjs",
+    "check": "node check-site.mjs && node --test \"../tests/*.test.mjs\"",
+    "check-a11y": "node check-a11y.mjs"
   },
   "devDependencies": {
     "@huggingface/transformers": "^3.7.0",
+    "axe-core": "^4.13.0",
     "fflate": "^0.8.3",
     "gpt-tokenizer": "^4.0.0"
   }

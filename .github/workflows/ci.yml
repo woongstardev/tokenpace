@@ -1,0 +1,93 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    # Weekly: re-derive every published figure from scratch. Catches upstream
+    # corpora or tokenizers changing under us, which would otherwise turn the
+    # committed numbers into unverifiable claims without anyone noticing.
+    - cron: '17 4 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Tests and invariants
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Unit tests
+        run: node --test "tests/*.test.mjs"
+
+      # No dependency install: these checks read the repository as shipped.
+      - name: Project invariants
+        run: node tools/check-site.mjs
+
+  a11y:
+    name: Accessibility
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: tools/package-lock.json
+
+      - run: npm ci
+        working-directory: tools
+
+      # The whole page is an animation, so accessibility is a correctness
+      # property here rather than a polish item. Audits light, dark, reduced
+      # motion and a 390px viewport.
+      - name: axe audit
+        run: node tools/check-a11y.mjs
+        env:
+          CHROME: /usr/bin/google-chrome
+
+  reproduce:
+    name: Reproduce published measurements
+    # Downloads ~90 MB of corpora and several tokenizers, so it does not gate
+    # every pull request — but if it ever fails, the numbers in docs/ are no
+    # longer the numbers the scripts produce, and that is the one failure this
+    # project cannot ship.
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: tools/package-lock.json
+
+      - run: npm ci
+        working-directory: tools
+
+      # Re-stamp with the committed measurement date, so today's date is not
+      # mistaken for a changed figure. Everything else must come out identical:
+      # the corpus sample is a fixed stride and the archives are checksummed.
+      - name: Re-run the full pipeline
+        working-directory: tools
+        run: |
+          MEASURED_AT=$(node -p "require('../data/token-density.json').measuredAt")
+          echo "Reproducing measurements stamped $MEASURED_AT"
+          TOKENPACE_MEASURED_AT="$MEASURED_AT" npm run all
+
+      - name: Compare against what is committed
+        run: |
+          if ! git diff --quiet -- .; then
+            echo "::error::A fresh run produced different output than what is committed."
+            git diff --stat -- .
+            git diff -- . | head -200
+            exit 1
+          fi
+          echo "Committed figures match a fresh run."
