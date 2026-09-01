@@ -10,7 +10,9 @@
     "fetch-corpus": "node fetch-corpus.mjs",
     "measure": "node measure-density.mjs",
     "derive": "node derive-pace.mjs",
-    "all": "npm run fetch-corpus && npm run measure && npm run derive"
+    "all": "npm run fetch-corpus && npm run measure && npm run derive && npm run build-site",
+    "build-site": "node build-site-data.mjs",
+    "vendor": "node vendor-tokenizer.mjs"
   },
   "devDependencies": {
     "@huggingface/transformers": "^3.7.0",

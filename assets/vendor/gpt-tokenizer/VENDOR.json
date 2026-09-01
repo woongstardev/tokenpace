@@ -1,0 +1,94 @@
+{
+  "package": "gpt-tokenizer",
+  "version": "4.0.0",
+  "license": "MIT",
+  "homepage": "https://github.com/niieani/gpt-tokenizer#readme",
+  "entry": "encoding/o200k_base.js",
+  "vendoredBy": "tools/vendor-tokenizer.mjs",
+  "files": [
+    {
+      "path": "BytePairEncodingCore.js",
+      "sha256": "5f6be6ac787a7319"
+    },
+    {
+      "path": "GptEncoding.js",
+      "sha256": "6c8951a16727b350"
+    },
+    {
+      "path": "_virtual/_rolldown/runtime.js",
+      "sha256": "1b10431e13b4eb34"
+    },
+    {
+      "path": "bpeRanks/o200k_base.js",
+      "sha256": "d8326a1a7d1288c4"
+    },
+    {
+      "path": "constants.js",
+      "sha256": "2899f0167b0c620f"
+    },
+    {
+      "path": "encoding/o200k_base.js",
+      "sha256": "f0b6383627f24962"
+    },
+    {
+      "path": "encodingParams/cl100k_base.js",
+      "sha256": "69c7054b426764f4"
+    },
+    {
+      "path": "encodingParams/constants.js",
+      "sha256": "d78b2549e8ac6a04"
+    },
+    {
+      "path": "encodingParams/o200k_base.js",
+      "sha256": "4f7ea89b7fc3be3f"
+    },
+    {
+      "path": "encodingParams/o200k_harmony.js",
+      "sha256": "c073dff60751b352"
+    },
+    {
+      "path": "encodingParams/p50k_base.js",
+      "sha256": "398be6298ded4de5"
+    },
+    {
+      "path": "encodingParams/p50k_edit.js",
+      "sha256": "611011dc046303e5"
+    },
+    {
+      "path": "encodingParams/r50k_base.js",
+      "sha256": "304ed77b3be8f69f"
+    },
+    {
+      "path": "functionCalling.js",
+      "sha256": "27635ffb7929fe6e"
+    },
+    {
+      "path": "mapping.js",
+      "sha256": "0f32d9b7e075732c"
+    },
+    {
+      "path": "modelParams.js",
+      "sha256": "c53a1a06d1ba2e57"
+    },
+    {
+      "path": "modelsChatEnabled.gen.js",
+      "sha256": "35fb7fb85e01c065"
+    },
+    {
+      "path": "modelsMap.js",
+      "sha256": "6feb373b44fbce86"
+    },
+    {
+      "path": "specialTokens.js",
+      "sha256": "852e75039acae133"
+    },
+    {
+      "path": "utfUtil.js",
+      "sha256": "5dc38b6590be99f4"
+    },
+    {
+      "path": "util.js",
+      "sha256": "943ad9bdbe2a0e5e"
+    }
+  ]
+}
