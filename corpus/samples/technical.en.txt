@@ -1,0 +1,6 @@
+A common mistake when rendering a streaming response is to emit characters per animation frame. Once the browser throttles requestAnimationFrame to once a second in a background tab, the timing falls apart.
+The fix is to drive the animation from the wall clock rather than from frames. Measure elapsed time with performance.now, compute how many tokens should have arrived by then, and emit the difference in one go.
+const elapsed = performance.now() - startedAt;
+const due = Math.floor((elapsed - ttftMs) / 1000 * tokensPerSecond);
+if (due > emitted) { emit(due - emitted); emitted = due; }
+To stop thousands of characters from dumping the moment the tab becomes visible again, pause the clock on the visibilitychange event. Record how long it was paused and add that to the start time when it resumes.

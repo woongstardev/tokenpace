@@ -1,0 +1,6 @@
+스트리밍 응답을 렌더링할 때 흔히 저지르는 실수는 프레임 수를 기준으로 글자를 찍는 것입니다. 브라우저가 백그라운드 탭에서 requestAnimationFrame 호출을 초당 한 번으로 줄이면 타이밍이 무너집니다.
+해결책은 프레임이 아니라 벽시계를 기준으로 삼는 것입니다. performance.now 로 경과 시간을 재고, 그 시점까지 나왔어야 할 토큰 수를 계산해 차이만큼을 한 번에 채웁니다.
+const elapsed = performance.now() - startedAt;
+const due = Math.floor((elapsed - ttftMs) / 1000 * tokensPerSecond);
+if (due > emitted) { emit(due - emitted); emitted = due; }
+탭이 다시 보이는 순간 수천 글자가 한꺼번에 쏟아지는 것을 막으려면 visibilitychange 이벤트에서 시계를 멈춰야 합니다. 멈춘 시간을 기록해 두었다가 복귀할 때 시작 시각에 더해 주면 됩니다.

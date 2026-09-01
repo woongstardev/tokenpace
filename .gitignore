@@ -1,3 +1,5 @@
 node_modules/
 .DS_Store
 *.log
+corpus/cache/
+tools/node_modules/

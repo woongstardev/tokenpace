@@ -1,0 +1,307 @@
+{
+  "measuredAt": "2026-09-01",
+  "tokenizers": {
+    "o200k_base": {
+      "label": "GPT-4o / GPT-5 (o200k_base)",
+      "source": "tiktoken:o200k_base",
+      "languages": {
+        "en": {
+          "chars": 965710,
+          "words": 174222,
+          "tokens": 207881,
+          "charsPerToken": 4.64549429721812,
+          "tokensPerWord": 1.1931960372398434,
+          "tokenRatioVsEnglish": 1
+        },
+        "ko": {
+          "chars": 165528,
+          "words": 40076,
+          "tokens": 97251,
+          "charsPerToken": 1.7020699015948422,
+          "tokensPerWord": 2.4266643377582593,
+          "tokenRatioVsEnglish": 1.391566265060241,
+          "corpus": "ted2020-en-ko"
+        },
+        "ja": {
+          "chars": 133616,
+          "words": 11444,
+          "tokens": 100240,
+          "charsPerToken": 1.3329608938547486,
+          "tokensPerWord": 8.759175113596644,
+          "tokenRatioVsEnglish": 1.4491622211620476,
+          "corpus": "ted2020-en-ja"
+        },
+        "zh": {
+          "chars": 105070,
+          "words": 8603,
+          "tokens": 80761,
+          "charsPerToken": 1.3009992446849346,
+          "tokensPerWord": 9.387539230500987,
+          "tokenRatioVsEnglish": 1.1734424038126234,
+          "corpus": "ted2020-en-zh"
+        }
+      }
+    },
+    "cl100k_base": {
+      "label": "GPT-4 / GPT-3.5 (cl100k_base)",
+      "source": "tiktoken:cl100k_base",
+      "languages": {
+        "en": {
+          "chars": 965710,
+          "words": 174222,
+          "tokens": 212724,
+          "charsPerToken": 4.539732235196781,
+          "tokensPerWord": 1.2209939043289597,
+          "tokenRatioVsEnglish": 1
+        },
+        "ko": {
+          "chars": 165528,
+          "words": 40076,
+          "tokens": 161925,
+          "charsPerToken": 1.022251042149143,
+          "tokensPerWord": 4.040448148517816,
+          "tokenRatioVsEnglish": 2.264020357657192,
+          "corpus": "ted2020-en-ko"
+        },
+        "ja": {
+          "chars": 133616,
+          "words": 11444,
+          "tokens": 138921,
+          "charsPerToken": 0.9618128288739644,
+          "tokensPerWord": 12.139199580566235,
+          "tokenRatioVsEnglish": 1.9621610169491526,
+          "corpus": "ted2020-en-ja"
+        },
+        "zh": {
+          "chars": 105070,
+          "words": 8603,
+          "tokens": 121033,
+          "charsPerToken": 0.8681103500698156,
+          "tokensPerWord": 14.06869696617459,
+          "tokenRatioVsEnglish": 1.7191454909591921,
+          "corpus": "ted2020-en-zh"
+        }
+      }
+    },
+    "llama-3.1": {
+      "label": "Llama 3.1",
+      "source": "unsloth/Meta-Llama-3.1-8B-Instruct",
+      "languages": {
+        "en": {
+          "chars": 965710,
+          "words": 174222,
+          "tokens": 212709,
+          "charsPerToken": 4.54005237201999,
+          "tokensPerWord": 1.2209078072803665,
+          "tokenRatioVsEnglish": 1
+        },
+        "ko": {
+          "chars": 165528,
+          "words": 40076,
+          "tokens": 99399,
+          "charsPerToken": 1.6652883831829295,
+          "tokensPerWord": 2.4802625012476294,
+          "tokenRatioVsEnglish": 1.3898653467007844,
+          "corpus": "ted2020-en-ko"
+        },
+        "ja": {
+          "chars": 133616,
+          "words": 11444,
+          "tokens": 91873,
+          "charsPerToken": 1.4543554689625897,
+          "tokensPerWord": 8.028049632995456,
+          "tokenRatioVsEnglish": 1.2977512218549594,
+          "corpus": "ted2020-en-ja"
+        },
+        "zh": {
+          "chars": 105070,
+          "words": 8603,
+          "tokens": 82225,
+          "charsPerToken": 1.2778352082699909,
+          "tokensPerWord": 9.557712425897943,
+          "tokenRatioVsEnglish": 1.1680019318730646,
+          "corpus": "ted2020-en-zh"
+        }
+      }
+    },
+    "qwen-3": {
+      "label": "Qwen3",
+      "source": "Qwen/Qwen3-8B",
+      "languages": {
+        "en": {
+          "chars": 965710,
+          "words": 174222,
+          "tokens": 214358,
+          "charsPerToken": 4.505126937179858,
+          "tokensPerWord": 1.230372742822376,
+          "tokenRatioVsEnglish": 1
+        },
+        "ko": {
+          "chars": 165528,
+          "words": 40076,
+          "tokens": 108357,
+          "charsPerToken": 1.5276170436612309,
+          "tokensPerWord": 2.7037878031739693,
+          "tokenRatioVsEnglish": 1.5036635119757986,
+          "corpus": "ted2020-en-ko"
+        },
+        "ja": {
+          "chars": 133616,
+          "words": 11444,
+          "tokens": 89102,
+          "charsPerToken": 1.49958474557249,
+          "tokensPerWord": 7.785914016078294,
+          "tokenRatioVsEnglish": 1.248521705013592,
+          "corpus": "ted2020-en-ja"
+        },
+        "zh": {
+          "chars": 105070,
+          "words": 8603,
+          "tokens": 68603,
+          "charsPerToken": 1.5315656749704822,
+          "tokensPerWord": 7.974311286760432,
+          "tokenRatioVsEnglish": 0.9671930071901875,
+          "corpus": "ted2020-en-zh"
+        }
+      }
+    },
+    "gemma-3": {
+      "label": "Gemma 3",
+      "source": "unsloth/gemma-3-4b-it",
+      "languages": {
+        "en": {
+          "chars": 965710,
+          "words": 174222,
+          "tokens": 216322,
+          "charsPerToken": 4.464224628100702,
+          "tokensPerWord": 1.2416457163848422,
+          "tokenRatioVsEnglish": 1
+        },
+        "ko": {
+          "chars": 165528,
+          "words": 40076,
+          "tokens": 89135,
+          "charsPerToken": 1.8570482975262244,
+          "tokensPerWord": 2.224149116678311,
+          "tokenRatioVsEnglish": 1.2255434408986539,
+          "corpus": "ted2020-en-ko"
+        },
+        "ja": {
+          "chars": 133616,
+          "words": 11444,
+          "tokens": 70524,
+          "charsPerToken": 1.8946174351993648,
+          "tokensPerWord": 6.162530583711989,
+          "tokenRatioVsEnglish": 0.9785079017107655,
+          "corpus": "ted2020-en-ja"
+        },
+        "zh": {
+          "chars": 105070,
+          "words": 8603,
+          "tokens": 66870,
+          "charsPerToken": 1.5712576641244205,
+          "tokensPerWord": 7.772869929094502,
+          "tokenRatioVsEnglish": 0.9350093682709248,
+          "corpus": "ted2020-en-zh"
+        }
+      }
+    },
+    "mistral-small": {
+      "label": "Mistral Small 3",
+      "source": "unsloth/Mistral-Small-24B-Instruct-2501",
+      "languages": {
+        "en": {
+          "chars": 965710,
+          "words": 174222,
+          "tokens": 215539,
+          "charsPerToken": 4.480442054570171,
+          "tokensPerWord": 1.2371514504482786,
+          "tokenRatioVsEnglish": 1
+        },
+        "ko": {
+          "chars": 165528,
+          "words": 40076,
+          "tokens": 85247,
+          "charsPerToken": 1.9417457505835982,
+          "tokensPerWord": 2.1271334464517415,
+          "tokenRatioVsEnglish": 1.1768270797095448,
+          "corpus": "ted2020-en-ko"
+        },
+        "ja": {
+          "chars": 133616,
+          "words": 11444,
+          "tokens": 96827,
+          "charsPerToken": 1.3799456763092939,
+          "tokensPerWord": 8.460940230688571,
+          "tokenRatioVsEnglish": 1.3496745236336265,
+          "corpus": "ted2020-en-ja"
+        },
+        "zh": {
+          "chars": 105070,
+          "words": 8603,
+          "tokens": 91422,
+          "charsPerToken": 1.1492857299118373,
+          "tokensPerWord": 10.62675810763687,
+          "tokenRatioVsEnglish": 1.2811378923766816,
+          "corpus": "ted2020-en-zh"
+        }
+      }
+    }
+  },
+  "registers": {
+    "chat": {
+      "en": {
+        "o200k_base": 4.313,
+        "cl100k_base": 4.313,
+        "llama-3.1": 4.313,
+        "qwen-3": 4.313,
+        "gemma-3": 4.313,
+        "mistral-small": 4.237
+      },
+      "ko": {
+        "o200k_base": 1.414,
+        "cl100k_base": 0.899,
+        "llama-3.1": 1.387,
+        "qwen-3": 1.298,
+        "gemma-3": 1.669,
+        "mistral-small": 1.644
+      }
+    },
+    "explainer": {
+      "en": {
+        "o200k_base": 5.077,
+        "cl100k_base": 5.077,
+        "llama-3.1": 5.077,
+        "qwen-3": 5.077,
+        "gemma-3": 5.129,
+        "mistral-small": 5.103
+      },
+      "ko": {
+        "o200k_base": 1.708,
+        "cl100k_base": 1.058,
+        "llama-3.1": 1.572,
+        "qwen-3": 1.408,
+        "gemma-3": 1.836,
+        "mistral-small": 1.869
+      }
+    },
+    "technical": {
+      "en": {
+        "o200k_base": 4.722,
+        "cl100k_base": 4.75,
+        "llama-3.1": 4.75,
+        "qwen-3": 4.694,
+        "gemma-3": 4.613,
+        "mistral-small": 4.586
+      },
+      "ko": {
+        "o200k_base": 2.19,
+        "cl100k_base": 1.571,
+        "llama-3.1": 2.135,
+        "qwen-3": 1.946,
+        "gemma-3": 2.321,
+        "mistral-small": 2.321
+      }
+    }
+  }
+}

@@ -1,0 +1,8 @@
+Did you try the model that dropped yesterday?
+Yeah, ran it for a bit. Faster than I expected.
+What did you get?
+Around sixty tokens a second. But the first character took three seconds, so it did not feel fast.
+Ugh, that is the worst. I would rather have something slower that starts right away.
+Same. The number looks great and then you actually use it.
+That is why I just run things locally now. Slower, but there is no waiting.
+Probably the right call. I should set that up this weekend.

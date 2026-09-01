@@ -1,0 +1,20 @@
+{
+  "name": "tokenpace-tools",
+  "private": true,
+  "type": "module",
+  "description": "Measurement harness for tokenpace. Kept separate from the site, which has zero dependencies.",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "fetch-corpus": "node fetch-corpus.mjs",
+    "measure": "node measure-density.mjs",
+    "derive": "node derive-pace.mjs",
+    "all": "npm run fetch-corpus && npm run measure && npm run derive"
+  },
+  "devDependencies": {
+    "@huggingface/transformers": "^3.7.0",
+    "fflate": "^0.8.3",
+    "gpt-tokenizer": "^4.0.0"
+  }
+}

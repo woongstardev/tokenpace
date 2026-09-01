@@ -1,0 +1,27 @@
+{
+  "generatedBy": "tools/fetch-corpus.mjs",
+  "sampleSize": 3000,
+  "sets": [
+    {
+      "id": "ted2020-en-ko",
+      "sha256": "c7bda45c82aa8a57d662ece2a58ec11826a161628423e20bd58cbdd692e77cbf",
+      "usablePairs": 319709,
+      "sampled": 3000,
+      "stride": 106
+    },
+    {
+      "id": "ted2020-en-ja",
+      "sha256": "a9d523aadb0ed6040a4755132c353c5380c260a36fc87d46fa16314c964aac7b",
+      "usablePairs": 293897,
+      "sampled": 3000,
+      "stride": 97
+    },
+    {
+      "id": "ted2020-en-zh",
+      "sha256": "f1a4e205458d67318d1eee31121c5350b3748caa2bca654a6b52a4a69e8d6202",
+      "usablePairs": 322353,
+      "sampled": 3000,
+      "stride": 107
+    }
+  ]
+}

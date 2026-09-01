@@ -1,0 +1,67 @@
+{
+  "$comment": [
+    "Hand-curated reading-speed constants with their primary sources.",
+    "This file is written by humans; data/reading-pace.json is derived from it.",
+    "",
+    "Rule for this file: no number goes in without a citable primary source.",
+    "A language with no trustworthy source gets `available: false` and the site",
+    "ships no default baseline for it. An invented default would be worse than",
+    "no baseline, because the whole point of the product is the baseline."
+  ],
+  "languages": {
+    "en": {
+      "available": true,
+      "unit": "word",
+      "rate": 238,
+      "rateUnit": "words/min",
+      "range": [175, 300],
+      "mode": "silent, non-fiction",
+      "source": {
+        "citation": "Brysbaert, M. (2019). How many words do we read per minute? A review and meta-analysis of reading rate. Journal of Memory and Language, 109, 104047.",
+        "doi": "10.1016/j.jml.2019.104047",
+        "url": "https://doi.org/10.1016/j.jml.2019.104047",
+        "basis": "190 studies, 18,573 participants. Silent reading of non-fiction: 238 wpm (fiction: 260 wpm).",
+        "caveats": [
+          "Adult first-language readers. Second-language reading is substantially slower.",
+          "Range 175-300 wpm covers most adults; the mean is not a personal prediction."
+        ]
+      }
+    },
+    "ko": {
+      "available": true,
+      "unit": "char",
+      "rate": 549.7,
+      "rateUnit": "chars/min",
+      "sd": 348.9,
+      "mode": "silent (reading only), 10 pt",
+      "source": {
+        "citation": "송지호, 김재형, 형성민 (2016). 한국어 읽기 속도 측정 애플리케이션의 유효성 및 정상인의 읽기 속도에 대한 사전 연구. 대한안과학회지, 57(4), 642-649.",
+        "doi": "10.3341/jkos.2016.57.4.642",
+        "url": "https://www.jkos.org/upload/pdf/JKOS057-04-17.pdf",
+        "basis": "n=42 (남 25 / 여 17), 노안 없는 정상 시력. Table 3 (reading only), 10 pt: 549.7 ± 348.9 LPM / 202.3 ± 88.4 WPM.",
+        "caveats": [
+          "안과 근거리 시기능 검사다. 아이패드를 40 cm 거리에서 보며 평균 18.9 음절짜리 단문을 읽는 조건이므로, 긴 산문을 지속해서 읽는 속도와 같다고 볼 수 없다.",
+          "표준편차가 평균의 63% 다 (±348.9). 개인차가 평균값을 압도한다 — 이 수치는 인구 평균이지 당신의 속도가 아니다.",
+          "글자 크기에 따라 467-579 LPM 사이에서 움직인다. 10 pt 는 논문 초록이 대표값으로 든 행이다.",
+          "20-39세 대상. 고령층 데이터 아님."
+        ]
+      }
+    },
+    "ja": {
+      "available": false,
+      "reason": "신뢰할 만한 성인 묵독 속도 1차 출처를 아직 확보하지 못했다. 검색에서 나온 수치들은 제2언어 학습자 대상이거나 저시력 임상 검사의 최대 속도라 일반 성인 묵독 기준으로 쓸 수 없다. IReST (Trauzettel-Klosinski & Dietz, 2012) 에 일본어판이 있으므로 그 규준값을 확인하는 것이 다음 단계다."
+    },
+    "zh": {
+      "available": false,
+      "reason": "위와 같다. 검색에서 나온 259.5 자/분은 저시력 연구의 maximum reading speed 라 일반 묵독 속도가 아니다. IReST 중국어판 규준값 확인 필요."
+    }
+  },
+  "pending": {
+    "irest": {
+      "citation": "Trauzettel-Klosinski, S., & Dietz, K. (2012). Standardized assessment of reading performance: The New International Reading Speed Texts IReST. Investigative Ophthalmology & Visual Science, 53(9), 5452-5461.",
+      "doi": "10.1167/iovs.11-8284",
+      "why": "17개 언어로 난이도를 맞춘 표준 지문. 언어 간 비교가 목적이라 우리 용도에 가장 잘 맞는다. 한국어판은 없지만 en/ja/zh 규준값을 한 출처로 통일할 수 있다.",
+      "blocker": "규준값 표가 논문 본문에 있고 지문 자체는 상용 라이선스다. 수치만 인용하는 것은 가능하니 원문 확인 후 반영한다."
+    }
+  }
+}
