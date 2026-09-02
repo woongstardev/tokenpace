@@ -55,6 +55,40 @@ under it. `tools/check-freshness.mjs` runs weekly and compares the tokenizer
 files at the pin against the ones at the head, so an upstream edit is reported
 with the file that moved rather than showing up as an unexplained diff.
 
+## What language things are written in
+
+This project is bilingual on purpose, and the split is not arbitrary: **English
+where someone has to read it to use or contribute to the project, Korean where
+Korean is the subject or the private record.**
+
+| | Language |
+|---|---|
+| README, this file, code of conduct, licences | English |
+| Issues, pull requests, code comments | English |
+| **Commit messages** | English, from 2026-09-03 |
+| The two measurement documents and `corpus/README.md` | **Both**, in one file |
+| The interface | Both, by toggle (`assets/js/i18n.js`) |
+| `docs/BRIEF.md` — the project's own scope record | Korean |
+
+Two of those are worth explaining.
+
+**The measurement documents are bilingual in one file, not two.** They are the
+citation surface: the page's footer links to them from the English interface as
+well as the Korean one, and until 2026-09-03 an English-speaking reader who
+followed "reproduce the numbers" arrived at a document they could not read.
+Splitting them into `token-density.md` and `token-density.en.md` would have
+fixed that and split the citations across two URLs — for a project whose stated
+goal is to be cited, one stable URL per measurement is worth more than a
+shorter page. Both halves are generated from the same data by the same script,
+so they cannot disagree about a number.
+
+**Commit messages switched to English on 2026-09-03.** Earlier history is
+Korean and stays that way; rewriting published history to translate it would
+cost more than it is worth and break every existing link to a commit. The
+reason for switching is that the commits here are not one-liners — they carry
+the reasoning behind decisions, which makes them documentation, and the rest of
+the documentation a contributor reads is already English.
+
 ## Adding, replacing or removing a tokenizer
 
 The roster of six is a claim that these are what a reader is choosing between,

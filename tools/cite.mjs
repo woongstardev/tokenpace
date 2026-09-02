@@ -22,3 +22,17 @@ export function citationBlock(measuredAt) {
 
 기계가 읽는 형식은 [\`CITATION.cff\`](../CITATION.cff) 에 있다 (CFF 1.2.0).`;
 }
+
+/** English half of the same block. Same citation string, deliberately. */
+export function citationBlockEn(measuredAt) {
+  const year = measuredAt.slice(0, 4);
+  return `## Citing these figures
+
+The figures in this document are **CC BY 4.0**: use them without asking, name
+where they came from.
+
+> Woongstar (${year}). *tokenpace: token density by language, and reading speed
+> converted to tok/s* (measured ${measuredAt}). <https://tokenpace.woongstar.com/>
+
+The machine-readable form is [\`CITATION.cff\`](../CITATION.cff) (CFF 1.2.0).`;
+}

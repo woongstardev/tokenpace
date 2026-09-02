@@ -52,6 +52,13 @@
           "표준편차가 평균의 63% 다 (±348.9). 개인차가 평균값을 압도한다 — 이 수치는 인구 평균이지 당신의 속도가 아니다.",
           "글자 크기에 따라 467-579 LPM 사이에서 움직인다. 10 pt 는 논문 초록이 대표값으로 든 행이다.",
           "20-39세 대상. 고령층 데이터 아님."
+        ],
+        "basisEn": "n=42 (25 men / 17 women), normal near vision without presbyopia. Table 3 (reading only) at 10 pt: 549.7 ± 348.9 characters/min, 202.3 ± 88.4 words/min.",
+        "caveatsEn": [
+          "This is an ophthalmic near-vision assessment. Participants read short sentences averaging 18.9 syllables from an iPad at 40 cm, which is not the same activity as sustained reading of long prose.",
+          "The standard deviation is 63% of the mean (±348.9). Individual variation overwhelms the average — this is a population figure, not a prediction about you.",
+          "The rate moves between 467 and 579 characters/min with type size. 10 pt is the row the paper's own abstract quotes.",
+          "Participants were 20-39 years old. There is no data here for older readers."
         ]
       },
       "consideredAndRejected": [
@@ -60,17 +67,20 @@
           "url": "https://accesson.kr/cogpsych/assets/pdf/17617/journal-27-3-367.pdf",
           "reports": "청년(n=15, 평균 23세) 최대 읽기 속도 296.81 wpm (SD 65.28), 노인(n=15) 208 wpm.",
           "whyRejected": "RSVP(rapid serial visual presentation) 로 잰 값이다 — 어절을 화면 중앙 한 자리에 하나씩 제시해 **안구운동을 최소화**한 조건이고, 80% 정확도 지점에 커브 피팅해 얻은 **최대** 읽기 속도다. 사람이 문단을 눈으로 훑어 내려가며 읽는 속도가 아니라 그 상한이므로, 저시력 임상의 maximum reading speed 를 기각한 것과 같은 이유로 쓸 수 없다. 실제로 같은 언어에서 이 값(296 wpm)은 채택한 출처(202.3 wpm)의 1.5배다 — 패러다임 차이가 이만큼 벌어진다는 것 자체가 두 값을 섞으면 안 된다는 증거다.",
-          "stillUseful": "기각했지만 버릴 자료는 아니다. 한국어 성인 묵독을 심리물리 방법으로 다룬 드문 국내 연구이고, 글자 크기 임계치(청년 0.41°) 는 화면 표시 조건을 논할 때 인용할 만하다. 우리가 쓰지 않는 이유는 품질이 아니라 측정 대상이 다르기 때문이다."
+          "stillUseful": "기각했지만 버릴 자료는 아니다. 한국어 성인 묵독을 심리물리 방법으로 다룬 드문 국내 연구이고, 글자 크기 임계치(청년 0.41°) 는 화면 표시 조건을 논할 때 인용할 만하다. 우리가 쓰지 않는 이유는 품질이 아니라 측정 대상이 다르기 때문이다.",
+          "whyRejectedEn": "Measured with RSVP (rapid serial visual presentation) — words presented one at a time at a fixed point on screen, which minimises eye movement, with a curve fitted to the 80% comprehension point to obtain a maximum reading rate. That is the ceiling of what a reader can do, not the speed at which someone reads down a paragraph, so it is rejected for the same reason as clinical maximum reading speed. In the same language this figure (296 wpm) is 1.5 times the source we did accept (202.3 wpm); that the paradigms diverge by this much is itself the argument against mixing them."
         }
       ]
     },
     "ja": {
       "available": false,
-      "reason": "신뢰할 만한 성인 묵독 속도 1차 출처를 아직 확보하지 못했다. 검색에서 나온 수치들은 제2언어 학습자 대상이거나 저시력 임상 검사의 최대 속도라 일반 성인 묵독 기준으로 쓸 수 없다. IReST (Trauzettel-Klosinski & Dietz, 2012) 에 일본어판이 있으므로 그 규준값을 확인하는 것이 다음 단계다."
+      "reason": "신뢰할 만한 성인 묵독 속도 1차 출처를 아직 확보하지 못했다. 검색에서 나온 수치들은 제2언어 학습자 대상이거나 저시력 임상 검사의 최대 속도라 일반 성인 묵독 기준으로 쓸 수 없다. IReST (Trauzettel-Klosinski & Dietz, 2012) 에 일본어판이 있으므로 그 규준값을 확인하는 것이 다음 단계다.",
+      "reasonEn": "No trustworthy primary source for adult silent reading has been secured. The figures that turn up are either for second-language learners or are maximum reading speeds from low-vision clinical testing, neither of which is a general adult silent-reading rate. IReST (Trauzettel-Klosinski & Dietz, 2012) has a Japanese edition, so checking its norm values is the next step."
     },
     "zh": {
       "available": false,
-      "reason": "위와 같다. 검색에서 나온 259.5 자/분은 저시력 연구의 maximum reading speed 라 일반 묵독 속도가 아니다. IReST 중국어판 규준값 확인 필요."
+      "reason": "위와 같다. 검색에서 나온 259.5 자/분은 저시력 연구의 maximum reading speed 라 일반 묵독 속도가 아니다. IReST 중국어판 규준값 확인 필요.",
+      "reasonEn": "As above. The 259.5 characters/min figure that turns up is a maximum reading speed from low-vision research, not a silent-reading rate. The Chinese IReST norms need checking."
     }
   },
   "pending": {

@@ -1,5 +1,7 @@
 # corpus
 
+**한국어** · [English ↓](#corpus-english)
+
 토큰 밀도를 재는 데 쓰는 텍스트. 두 종류가 있고 취급이 다르다.
 
 ## 1. `samples/` — 커밋된다 (CC0)
@@ -62,3 +64,86 @@ npm run all      # fetch-corpus → measure → derive
 결과는 [`docs/token-density.md`](../docs/token-density.md) 와
 [`docs/reading-speed.md`](../docs/reading-speed.md) 에 덮어쓰인다. 둘 다 생성물이므로
 직접 고치지 말고 스크립트를 고쳐라.
+
+---
+---
+
+# corpus (English)
+
+[한국어 ↑](#corpus) · **English**
+
+The text the token-density figures are measured on. Two kinds, handled
+differently.
+
+## 1. `samples/` — committed (CC0)
+
+Parallel samples **written directly** in Korean and English to say the same
+thing, split by register.
+
+| File | Register | Why it exists |
+|---|---|---|
+| `explainer.{ko,en}.txt` | Explanation | The shape an LLM answer most often takes |
+| `chat.{ko,en}.txt` | Dialogue | Short turns, dense in sentence endings |
+| `technical.{ko,en}.txt` | Technical writing with code | Code blocks pull density toward the English figure |
+
+These are not translations of each other; each side was written naturally in
+its own language.
+
+This paragraph used to carry an assertion nobody had measured — that measuring
+only on a translation corpus underestimates real-world density. It was measured
+on 2026-09-03; the result is in
+[`docs/token-density.md`](../docs/token-density.md) §4. In short:
+
+- The direction was right. Directly written text has more characters per token
+  than TED2020 (Korean +5.9% on o200k_base).
+- **The size is small.** On the same axis, register moves it ±55% and the
+  tokenizer ±90%.
+- And the difference is mostly **not** translation. TED2020's English side is
+  the original and still moves in the same direction by +2.7 to +6.4%, so what
+  was being measured is spoken subtitles versus written prose.
+
+⇒ `samples/` still needs to exist, but the reason is **register coverage**, not
+correcting for translationese. The sentence above was changed to say so.
+
+Licence: **CC0 1.0** (public domain dedication). Take them.
+
+## 2. `cache/` — not committed
+
+The TED2020 parallel corpus from OPUS, downloaded by `tools/fetch-corpus.mjs`.
+
+- Source: [OPUS TED2020](https://opus.nlpl.eu/TED2020/) — Reimers & Gurevych (2020)
+- Underlying text: TED talk subtitles, **CC BY-NC-ND 4.0**
+
+The No-Derivatives term means **a sampled subset cannot be republished here**.
+What is committed instead is the sha256 of each archive, in
+[`CHECKSUMS.json`](CHECKSUMS.json). A reproduction downloads the same archive
+and takes the same sample at the same stride — which is why the sampling is a
+fixed stride and not random.
+
+### Why TED2020
+
+Claiming a density ratio between languages requires **parallel text of the same
+content**. Comparing text collected separately per language cannot separate a
+language difference from a topic difference.
+
+FLORES-200 is the usual corpus for this, and it is gated behind a Hugging Face
+login. **A reproduction that needs an account is not a reproduction**, so the
+ungated TED2020 was chosen instead.
+
+Limits: it is spoken conference prose, so it has no written register, no code
+and no lists, and its non-English sides are translations. `samples/` above
+covers that gap, and how large the gap actually is was measured — see
+[`docs/token-density.md`](../docs/token-density.md) §4. Not large enough to move
+the conclusion.
+
+## Reproducing
+
+```
+cd tools
+npm ci
+npm run all      # fetch-corpus → measure → derive
+```
+
+The results overwrite [`docs/token-density.md`](../docs/token-density.md) and
+[`docs/reading-speed.md`](../docs/reading-speed.md). Both are generated, so edit
+the scripts rather than the documents.

@@ -15,7 +15,7 @@
  */
 
 import { readFile, writeFile } from 'node:fs/promises';
-import { citationBlock } from './cite.mjs';
+import { citationBlock, citationBlockEn } from './cite.mjs';
 import path from 'node:path';
 
 import { REPO_ROOT, TOKENIZERS, LANGUAGES } from './corpus-config.mjs';
@@ -143,6 +143,33 @@ function render(out, sources, density) {
     })
     .join('\n');
 
+  // Language names in the English half. LANGUAGES carries endonyms, which are
+  // right in the Korean half and wrong in a sentence of English prose.
+  const EN_LABEL = { en: 'English', ko: 'Korean', ja: 'Japanese', zh: 'Chinese (Simplified)' };
+  const enLabel = (l) => EN_LABEL[l.id] ?? l.label;
+
+  const SENSITIVITY_EN = availableLangs
+    .filter((l) => out.languages[l.id].readerSpread)
+    .map((l) => {
+      const r = out.languages[l.id];
+      const [lo, hi] = r.readerSpread;
+      return `- **${enLabel(l)}** across the spread around ${r.rate} ${r.rateUnit} → **${lo} to ${hi} tok/s**`;
+    })
+    .join('\n');
+
+  const CORPUS_SENSITIVITY_EN = availableLangs
+    .filter((l) => density.provenance?.[l.id]?.o200k_base && out.languages[l.id].rateUnit && out.languages[l.id].rateUnit.startsWith('chars'))
+    .map((l) => {
+      const p = density.provenance[l.id].o200k_base;
+      const rate = out.languages[l.id].rate;
+      return `- **${enLabel(l)}** ${(rate / p.corpus / 60).toFixed(2)} → **${(rate / p.native / 60).toFixed(2)} tok/s** (chars per token ${p.corpus.toFixed(2)} → ${p.native.toFixed(2)})`;
+    })
+    .join('\n');
+
+  const headerEn = `| Tokenizer | ${availableLangs.map(enLabel).join(' | ')} |\n|---|${availableLangs
+    .map(() => '---:')
+    .join('|')}|`;
+
   const header = `| 토크나이저 | ${availableLangs.map((l) => l.label).join(' | ')} |\n|---|${availableLangs
     .map(() => '---:')
     .join('|')}|`;
@@ -177,9 +204,40 @@ function render(out, sources, density) {
     .map((l) => `- **${l.label}** — ${out.languages[l.id].reason}`)
     .join('\n');
 
+  // The English half must not fall back to Korean prose — that is the whole
+  // reason this document is bilingual. Sources carry both, so read both.
+  const caveatBlocksEn = availableLangs
+    .map((l) => {
+      const src = sources.languages[l.id].source;
+      const label = enLabel(l);
+      return [
+        `### ${label} — ${out.languages[l.id].rate} ${out.languages[l.id].rateUnit}`,
+        '',
+        `> ${src.citation}`,
+        src.url ? `> <${src.url}>` : '',
+        '',
+        `**Basis**: ${src.basisEn ?? src.basis}`,
+        '',
+        '**Limits**:',
+        ...(src.caveatsEn ?? src.caveats ?? []).map((c) => `- ${c}`),
+      ]
+        .filter((x) => x !== '')
+        .join('\n');
+    })
+    .join('\n\n');
+
+  const missingEn = LANGUAGES.filter((l) => !out.languages[l.id].available)
+    .map((l) => {
+      const spec = sources.languages[l.id];
+      return `- **${enLabel(l)}** — ${spec.reasonEn ?? spec.reason}`;
+    })
+    .join('\n');
+
   return `<!-- GENERATED FILE — edit data/reading-speed-sources.json, then re-run \`npm run derive\`. -->
 
 # 읽기 속도 → tok/s 환산
+
+**한국어** · [English ↓](#reading-speed-in-tokss)
 
 - **측정일**: ${out.measuredAt}
 - **재현**: \`cd tools && npm run derive\`
@@ -264,6 +322,110 @@ ${missing ? `### 출처를 확보하지 못한 언어\n\n${missing}\n\n이 언�
 ---
 
 ${citationBlock(out.measuredAt)}
+
+---
+---
+
+# Reading speed, in tok/s
+
+[한국어 ↑](#읽기-속도--toks-환산) · **English**
+
+- **Measured**: ${out.measuredAt}
+- **Reproduce**: \`cd tools && npm run derive\`
+- **Inputs**: [\`data/reading-speed-sources.json\`](../data/reading-speed-sources.json) (hand-curated
+  sourced constants) × [\`docs/token-density.md\`](token-density.md) (measured density)
+
+tok/s is a unit on the model's side; reading speed is a unit on the human side.
+Putting them on one axis takes token density, and density differs by tokenizer,
+so **the conversion differs by tokenizer too.** There is no single number here.
+
+---
+
+## How many tok/s does a person read at?
+
+${headerEn}
+${rows}
+
+**This table is the project's conclusion.** Whichever language and whichever
+tokenizer you convert through, reading speed lands between
+**${SUMMARY.lo} and ${SUMMARY.hi} tok/s**. On the current tokenizer
+(o200k_base) it is ${SUMMARY.enModern} tok/s in English and ${SUMMARY.koModern} tok/s
+in Korean — **effectively the same**. Two languages that differ threefold in
+characters per second overlap once converted to tok/s, because the tokenizer
+tracks information density to a degree.
+
+The 50, 100 and 300 tok/s that inference services advertise are
+**${SUMMARY.x50}× to ${SUMMARY.x300}×** human reading speed.
+
+⇒ **For prose you read down**, "you never wait while reading" was achieved long
+ago, and raising decoding speed further does not change it. What is left of the
+felt experience is **time to first token** and **how long the answer is**, not
+tok/s.
+
+### If you are not the average reader (sensitivity)
+
+What matters is how much of this conclusion hangs on one mean. Re-derived at
+both ends of the published spread (o200k_base):
+
+${SENSITIVITY_EN}
+
+⇒ **The verdict at 35 tok/s does not change at either end.** The only lane that
+flips is the 5 tok/s one, which is why that lane is on the page. What the
+conclusion rests on is the order of magnitude, not the mean — and that is why
+measuring your own speed sits above the population average in the interface.
+
+### Does another corpus change it? (sensitivity 2)
+
+The density came from translated conference subtitles (TED2020). Re-deriving it
+from prose written directly in each language
+([\`corpus/samples/\`](../corpus/README.md)):
+
+${CORPUS_SENSITIVITY_EN}
+
+⇒ The order of magnitude does not move, so the corpus does not decide the
+conclusion. Why it does not is measured in
+[\`docs/token-density.md\`](token-density.md) §4: most of that difference is
+speech versus writing rather than translation. (English converts through words
+rather than characters, so it is not in this table.)
+
+### Where this conclusion stops — skimming
+
+This is **reading** speed, not **skimming** speed. For output the eye skips
+through — code, tables, long lists — human throughput rises, and tok/s comes
+back into how fast it feels.
+
+How the threshold moves is just arithmetic: if skimming takes text in at **k
+times** reading speed, the threshold is **k times** higher. 10 tok/s for reading
+becomes 30 tok/s at k=3.
+
+**k is not measured here.** So the threshold in this document is a claim about
+text that is read, and must not be carried over to output that is skimmed. What
+it would take to fill in k is written down under \`skimming\` in
+[\`data/reading-speed-sources.json\`](../data/reading-speed-sources.json).
+
+---
+
+## Sources and their limits
+
+${caveatBlocksEn}
+
+${missingEn ? `### Languages with no source yet\n\n${missingEn}\n\nThese languages use measured token density but ship **no reading baseline**.\nAn unsourced default would be worse than an empty one, because the baseline is\nwhat this product is.` : ''}
+
+---
+
+## Why not to trust the average
+
+The Korean source's standard deviation is 63% of its mean (549.7 ± 348.9
+characters/min). English readers likewise scatter across 175-300 wpm.
+**A population average is not your threshold.**
+
+⇒ The site uses these values **only as the slider's starting position**, and
+lets you measure your own reading speed and overwrite them. On a measure whose
+individual variation overwhelms its average, that is the only honest design.
+
+---
+
+${citationBlockEn(out.measuredAt)}
 `;
 }
 

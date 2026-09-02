@@ -66,7 +66,8 @@ deviation is 63% of the mean.
 ## The measurements
 
 Full tables in [`docs/token-density.md`](docs/token-density.md) and
-[`docs/reading-speed.md`](docs/reading-speed.md). The short version:
+[`docs/reading-speed.md`](docs/reading-speed.md) — both bilingual, Korean first,
+English below it in the same file. The short version:
 
 **Characters one token renders as**
 

@@ -2,6 +2,8 @@
 
 # 읽기 속도 → tok/s 환산
 
+**한국어** · [English ↓](#reading-speed-in-tokss)
+
 - **측정일**: 2026-09-02
 - **재현**: `cd tools && npm run derive`
 - **입력**: [`data/reading-speed-sources.json`](../data/reading-speed-sources.json) (사람이 쓴 출처 있는 상수)
@@ -121,3 +123,145 @@ tok/s 가 아니다.
 > (측정 2026-09-02). <https://tokenpace.woongstar.com/>
 
 기계가 읽는 형식은 [`CITATION.cff`](../CITATION.cff) 에 있다 (CFF 1.2.0).
+
+---
+---
+
+# Reading speed, in tok/s
+
+[한국어 ↑](#읽기-속도--toks-환산) · **English**
+
+- **Measured**: 2026-09-02
+- **Reproduce**: `cd tools && npm run derive`
+- **Inputs**: [`data/reading-speed-sources.json`](../data/reading-speed-sources.json) (hand-curated
+  sourced constants) × [`docs/token-density.md`](token-density.md) (measured density)
+
+tok/s is a unit on the model's side; reading speed is a unit on the human side.
+Putting them on one axis takes token density, and density differs by tokenizer,
+so **the conversion differs by tokenizer too.** There is no single number here.
+
+---
+
+## How many tok/s does a person read at?
+
+| Tokenizer | English | Korean |
+|---|---:|---:|
+| GPT-4o / GPT-5 (o200k_base) | 4.73 | 5.38 |
+| GPT-4 / GPT-3.5 (cl100k_base) | 4.84 | 8.96 |
+| Llama 3.1 | 4.84 | 5.50 |
+| Qwen3 | 4.88 | 6.00 |
+| Gemma 3 | 4.93 | 4.93 |
+| Mistral Small 3 | 4.91 | 4.72 |
+
+**This table is the project's conclusion.** Whichever language and whichever
+tokenizer you convert through, reading speed lands between
+**4.7 and 9.0 tok/s**. On the current tokenizer
+(o200k_base) it is 4.7 tok/s in English and 5.4 tok/s
+in Korean — **effectively the same**. Two languages that differ threefold in
+characters per second overlap once converted to tok/s, because the tokenizer
+tracks information density to a degree.
+
+The 50, 100 and 300 tok/s that inference services advertise are
+**6× to 64×** human reading speed.
+
+⇒ **For prose you read down**, "you never wait while reading" was achieved long
+ago, and raising decoding speed further does not change it. What is left of the
+felt experience is **time to first token** and **how long the answer is**, not
+tok/s.
+
+### If you are not the average reader (sensitivity)
+
+What matters is how much of this conclusion hangs on one mean. Re-derived at
+both ends of the published spread (o200k_base):
+
+- **English** across the spread around 238 words/min → **3.48 to 5.97 tok/s**
+- **Korean** across the spread around 549.7 chars/min → **1.97 to 8.8 tok/s**
+
+⇒ **The verdict at 35 tok/s does not change at either end.** The only lane that
+flips is the 5 tok/s one, which is why that lane is on the page. What the
+conclusion rests on is the order of magnitude, not the mean — and that is why
+measuring your own speed sits above the population average in the interface.
+
+### Does another corpus change it? (sensitivity 2)
+
+The density came from translated conference subtitles (TED2020). Re-deriving it
+from prose written directly in each language
+([`corpus/samples/`](../corpus/README.md)):
+
+- **Korean** 5.38 → **5.08 tok/s** (chars per token 1.70 → 1.80)
+
+⇒ The order of magnitude does not move, so the corpus does not decide the
+conclusion. Why it does not is measured in
+[`docs/token-density.md`](token-density.md) §4: most of that difference is
+speech versus writing rather than translation. (English converts through words
+rather than characters, so it is not in this table.)
+
+### Where this conclusion stops — skimming
+
+This is **reading** speed, not **skimming** speed. For output the eye skips
+through — code, tables, long lists — human throughput rises, and tok/s comes
+back into how fast it feels.
+
+How the threshold moves is just arithmetic: if skimming takes text in at **k
+times** reading speed, the threshold is **k times** higher. 10 tok/s for reading
+becomes 30 tok/s at k=3.
+
+**k is not measured here.** So the threshold in this document is a claim about
+text that is read, and must not be carried over to output that is skimmed. What
+it would take to fill in k is written down under `skimming` in
+[`data/reading-speed-sources.json`](../data/reading-speed-sources.json).
+
+---
+
+## Sources and their limits
+
+### English — 238 words/min
+> Brysbaert, M. (2019). How many words do we read per minute? A review and meta-analysis of reading rate. Journal of Memory and Language, 109, 104047.
+> <https://doi.org/10.1016/j.jml.2019.104047>
+**Basis**: 190 studies, 18,573 participants. Silent reading of non-fiction: 238 wpm (fiction: 260 wpm).
+**Limits**:
+- Adult first-language readers. Second-language reading is substantially slower.
+- Range 175-300 wpm covers most adults; the mean is not a personal prediction.
+
+### Korean — 549.7 chars/min
+> 송지호, 김재형, 형성민 (2016). 한국어 읽기 속도 측정 애플리케이션의 유효성 및 정상인의 읽기 속도에 대한 사전 연구. 대한안과학회지, 57(4), 642-649.
+> <https://www.jkos.org/upload/pdf/JKOS057-04-17.pdf>
+**Basis**: n=42 (25 men / 17 women), normal near vision without presbyopia. Table 3 (reading only) at 10 pt: 549.7 ± 348.9 characters/min, 202.3 ± 88.4 words/min.
+**Limits**:
+- This is an ophthalmic near-vision assessment. Participants read short sentences averaging 18.9 syllables from an iPad at 40 cm, which is not the same activity as sustained reading of long prose.
+- The standard deviation is 63% of the mean (±348.9). Individual variation overwhelms the average — this is a population figure, not a prediction about you.
+- The rate moves between 467 and 579 characters/min with type size. 10 pt is the row the paper's own abstract quotes.
+- Participants were 20-39 years old. There is no data here for older readers.
+
+### Languages with no source yet
+
+- **Japanese** — No trustworthy primary source for adult silent reading has been secured. The figures that turn up are either for second-language learners or are maximum reading speeds from low-vision clinical testing, neither of which is a general adult silent-reading rate. IReST (Trauzettel-Klosinski & Dietz, 2012) has a Japanese edition, so checking its norm values is the next step.
+- **Chinese (Simplified)** — As above. The 259.5 characters/min figure that turns up is a maximum reading speed from low-vision research, not a silent-reading rate. The Chinese IReST norms need checking.
+
+These languages use measured token density but ship **no reading baseline**.
+An unsourced default would be worse than an empty one, because the baseline is
+what this product is.
+
+---
+
+## Why not to trust the average
+
+The Korean source's standard deviation is 63% of its mean (549.7 ± 348.9
+characters/min). English readers likewise scatter across 175-300 wpm.
+**A population average is not your threshold.**
+
+⇒ The site uses these values **only as the slider's starting position**, and
+lets you measure your own reading speed and overwrite them. On a measure whose
+individual variation overwhelms its average, that is the only honest design.
+
+---
+
+## Citing these figures
+
+The figures in this document are **CC BY 4.0**: use them without asking, name
+where they came from.
+
+> Woongstar (2026). *tokenpace: token density by language, and reading speed
+> converted to tok/s* (measured 2026-09-02). <https://tokenpace.woongstar.com/>
+
+The machine-readable form is [`CITATION.cff`](../CITATION.cff) (CFF 1.2.0).

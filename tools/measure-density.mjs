@@ -19,7 +19,7 @@
  */
 
 import { mkdir, readFile, writeFile, readdir } from 'node:fs/promises';
-import { citationBlock } from './cite.mjs';
+import { citationBlock, citationBlockEn } from './cite.mjs';
 import path from 'node:path';
 
 import { REPO_ROOT, CACHE_DIR, SAMPLES_DIR, PARALLEL_SETS, TOKENIZERS, LANGUAGES } from './corpus-config.mjs';
@@ -239,6 +239,18 @@ function renderMarkdown(r) {
       return `| ${spec.label} | ${langs.map((l) => pick(L[l.id])).join(' | ')} |`;
     }).join('\n');
 
+  const EN_LABEL = { en: 'English', ko: 'Korean', ja: 'Japanese', zh: 'Chinese (Simplified)' };
+  const headerEn = `| Tokenizer | ${langs.map((l) => EN_LABEL[l.id] ?? l.label).join(' | ')} |\n|---|${langs.map(() => '---:').join('|')}|`;
+  const PROVENANCE_TABLE_EN = [
+    '| Language | TED2020 (translated, spoken) | samples (written directly) | Difference | Range over six tokenizers |',
+    '|---|---:|---:|---:|---:|',
+    ...['en', 'ko'].map((lang) => {
+      const p = prov[lang].o200k_base;
+      const all = provIds.map((id) => prov[lang][id].ratio);
+      return `| ${EN_LABEL[lang]} | ${p.corpus.toFixed(2)} | ${p.native.toFixed(2)} | ${pct(p.ratio)} | ${spread(all)} |`;
+    }),
+  ].join('\n');
+
   const header = `| 토크나이저 | ${langs.map((l) => l.label).join(' | ')} |\n|---|${langs.map(() => '---:').join('|')}|`;
 
   const registerRows = Object.entries(r.registers)
@@ -254,6 +266,8 @@ function renderMarkdown(r) {
   return `<!-- GENERATED FILE — edit tools/measure-density.mjs, then re-run \`npm run measure\`. -->
 
 # 토큰 밀도 실측 (token density)
+
+**한국어** · [English ↓](#token-density-measured)
 
 - **측정일**: ${r.measuredAt}
 - **재현**: \`cd tools && npm ci && npm run fetch-corpus && npm run measure\`
@@ -331,6 +345,110 @@ TED2020 표본(언어쌍당 3,000 문장)보다 두 자릿수 작다. 위 수치
 ---
 
 ${citationBlock(r.measuredAt)}
+
+---
+---
+
+# Token density, measured
+
+[한국어 ↑](#토큰-밀도-실측-token-density) · **English**
+
+- **Measured**: ${r.measuredAt}
+- **Reproduce**: \`cd tools && npm ci && npm run fetch-corpus && npm run measure\`
+- **Corpus**: TED2020 (OPUS), 3,000 sentence pairs per language pair, sampled at
+  a fixed stride. Archive sha256 values are pinned in
+  [\`corpus/CHECKSUMS.json\`](../corpus/CHECKSUMS.json).
+- **Aggregation**: sum of tokens over sum of characters, per sentence.
+  Characters are counted as **Unicode code points**, not UTF-16 units. Special
+  tokens are excluded.
+- **Tokenizer pins**: every Hub tokenizer is pinned to a commit, recorded per
+  row in [\`data/token-density.json\`](../data/token-density.json), and checked
+  weekly against upstream by \`tools/check-freshness.mjs\`.
+
+---
+
+## 1. Characters per token — how much text one token renders as
+
+The coefficient that turns tok/s into characters per second on screen.
+**Bigger looks faster.**
+
+${headerEn}
+${rows((x) => x.charsPerToken.toFixed(2))}
+
+## 2. Token ratio — tokens for the same meaning (English = 1.00)
+
+The axis your API bill is on. **Bigger is more expensive.** It is not the
+reciprocal of table 1: the number of characters each language needs to carry
+the same meaning differs in the first place.
+
+${headerEn}
+${rows((x) => x.tokenRatioVsEnglish.toFixed(2) + '×')}
+
+## 3. Variation by register (o200k_base, characters per token)
+
+TED2020 is spoken prose. The explanations, code and dialogue an LLM actually
+emits have different density, so parallel samples written directly for this
+purpose ([\`corpus/samples/\`](../corpus/README.md), CC0) are measured
+separately.
+
+| Register | English | Korean | Gap |
+|---|---:|---:|---:|
+${registerRows}
+
+## 4. How much does the corpus choice move this? Translation versus writing
+
+TED2020's non-English side is **translated**, and it is speech (talk
+subtitles). \`corpus/samples/\` is prose **written directly** in each language.
+The question of whether real-world density should be measured on a translation
+corpus is answered by measuring it.
+
+${PROVENANCE_TABLE_EN}
+
+**English is the control.** TED2020's English side is the original, not a
+translation, and it still moves by ${PROVENANCE_EN_SPREAD}. So most of this
+difference is not *because it is translated* — it is **spoken subtitles versus
+written prose**. What can be attributed to translation is only the amount by
+which Korean moves **more** than English, and that excess runs
+${PROVENANCE_KO_EXCESS} depending on the tokenizer. Where it is negative,
+Korean moved less than English and there is nothing left to attribute at all.
+
+**The ordering is the answer.** Putting the three things that move Korean
+characters-per-token on one axis (o200k_base, against the directly written
+samples):
+
+| What changes | How far chars/token moves |
+|---|---:|
+| Corpus (translated speech → written prose) | ${PROVENANCE_KO_PCT} |
+| Register (dialogue → technical writing) | ${REGISTER_KO_PCT} |
+| Tokenizer (cl100k_base → Mistral Small 3) | ${TOKENIZER_KO_PCT} |
+
+⇒ The corpus is the **smallest** of the three. The other two are already
+chosen by the reader on the page.
+
+⚠️ **Limit**: the directly written samples are ${PROVENANCE_KO_CHARS} Korean and
+${PROVENANCE_EN_CHARS} English characters, two orders of magnitude smaller than
+the TED2020 sample of 3,000 sentence pairs per pair. These figures are for
+direction and magnitude, not for quoting to three significant figures. A larger
+natively written corpus would mean re-measuring this section.
+
+---
+
+## Sources and licences
+
+- Corpus: TED2020 — Reimers & Gurevych (2020), [OPUS](https://opus.nlpl.eu/TED2020/).
+  The underlying TED subtitles are CC BY-NC-ND 4.0, so **the text is not carried
+  in this repository.** The download script and the checksums are.
+- Tokenizers: the OpenAI encodings come from
+  [gpt-tokenizer](https://github.com/niieani/gpt-tokenizer) (MIT, a port of
+  tiktoken). The rest are \`tokenizer.json\` files from the Hugging Face Hub.
+  **Only ungated repositories are used** — a reproduction that needs an account
+  is not one — so Llama and Gemma are read from community mirrors of the same
+  files.
+- The figures in this document: CC BY 4.0.
+
+---
+
+${citationBlockEn(r.measuredAt)}
 `;
 }
 

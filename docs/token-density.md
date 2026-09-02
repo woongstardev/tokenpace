@@ -2,6 +2,8 @@
 
 # 토큰 밀도 실측 (token density)
 
+**한국어** · [English ↓](#token-density-measured)
+
 - **측정일**: 2026-09-02
 - **재현**: `cd tools && npm ci && npm run fetch-corpus && npm run measure`
 - **코퍼스**: TED2020 (OPUS), 언어쌍별 3,000 문장쌍을 고정 stride 로 표본 추출.
@@ -102,3 +104,132 @@ TED2020 표본(언어쌍당 3,000 문장)보다 두 자릿수 작다. 위 수치
 > (측정 2026-09-02). <https://tokenpace.woongstar.com/>
 
 기계가 읽는 형식은 [`CITATION.cff`](../CITATION.cff) 에 있다 (CFF 1.2.0).
+
+---
+---
+
+# Token density, measured
+
+[한국어 ↑](#토큰-밀도-실측-token-density) · **English**
+
+- **Measured**: 2026-09-02
+- **Reproduce**: `cd tools && npm ci && npm run fetch-corpus && npm run measure`
+- **Corpus**: TED2020 (OPUS), 3,000 sentence pairs per language pair, sampled at
+  a fixed stride. Archive sha256 values are pinned in
+  [`corpus/CHECKSUMS.json`](../corpus/CHECKSUMS.json).
+- **Aggregation**: sum of tokens over sum of characters, per sentence.
+  Characters are counted as **Unicode code points**, not UTF-16 units. Special
+  tokens are excluded.
+- **Tokenizer pins**: every Hub tokenizer is pinned to a commit, recorded per
+  row in [`data/token-density.json`](../data/token-density.json), and checked
+  weekly against upstream by `tools/check-freshness.mjs`.
+
+---
+
+## 1. Characters per token — how much text one token renders as
+
+The coefficient that turns tok/s into characters per second on screen.
+**Bigger looks faster.**
+
+| Tokenizer | English | Korean | Japanese | Chinese (Simplified) |
+|---|---:|---:|---:|---:|
+| GPT-4o / GPT-5 (o200k_base) | 4.65 | 1.70 | 1.33 | 1.30 |
+| GPT-4 / GPT-3.5 (cl100k_base) | 4.54 | 1.02 | 0.96 | 0.87 |
+| Llama 3.1 | 4.54 | 1.67 | 1.45 | 1.28 |
+| Qwen3 | 4.51 | 1.53 | 1.50 | 1.53 |
+| Gemma 3 | 4.46 | 1.86 | 1.89 | 1.57 |
+| Mistral Small 3 | 4.48 | 1.94 | 1.38 | 1.15 |
+
+## 2. Token ratio — tokens for the same meaning (English = 1.00)
+
+The axis your API bill is on. **Bigger is more expensive.** It is not the
+reciprocal of table 1: the number of characters each language needs to carry
+the same meaning differs in the first place.
+
+| Tokenizer | English | Korean | Japanese | Chinese (Simplified) |
+|---|---:|---:|---:|---:|
+| GPT-4o / GPT-5 (o200k_base) | 1.00× | 1.39× | 1.45× | 1.17× |
+| GPT-4 / GPT-3.5 (cl100k_base) | 1.00× | 2.26× | 1.96× | 1.72× |
+| Llama 3.1 | 1.00× | 1.39× | 1.30× | 1.17× |
+| Qwen3 | 1.00× | 1.50× | 1.25× | 0.97× |
+| Gemma 3 | 1.00× | 1.23× | 0.98× | 0.94× |
+| Mistral Small 3 | 1.00× | 1.18× | 1.35× | 1.28× |
+
+## 3. Variation by register (o200k_base, characters per token)
+
+TED2020 is spoken prose. The explanations, code and dialogue an LLM actually
+emits have different density, so parallel samples written directly for this
+purpose ([`corpus/samples/`](../corpus/README.md), CC0) are measured
+separately.
+
+| Register | English | Korean | Gap |
+|---|---:|---:|---:|
+| chat | 4.31 | 1.41 | 3.05× |
+| explainer | 5.08 | 1.71 | 2.97× |
+| technical | 4.72 | 2.19 | 2.16× |
+
+## 4. How much does the corpus choice move this? Translation versus writing
+
+TED2020's non-English side is **translated**, and it is speech (talk
+subtitles). `corpus/samples/` is prose **written directly** in each language.
+The question of whether real-world density should be measured on a translation
+corpus is answered by measuring it.
+
+| Language | TED2020 (translated, spoken) | samples (written directly) | Difference | Range over six tokenizers |
+|---|---:|---:|---:|---:|
+| English | 4.64 | 4.77 | +2.7% | +2.7% ~ +6.4% |
+| Korean | 1.70 | 1.80 | +5.9% | +1.8% ~ +15.2% |
+
+**English is the control.** TED2020's English side is the original, not a
+translation, and it still moves by +2.7% ~ +6.4%. So most of this
+difference is not *because it is translated* — it is **spoken subtitles versus
+written prose**. What can be attributed to translation is only the amount by
+which Korean moves **more** than English, and that excess runs
+-3.5 ~ +9.8 포인트 depending on the tokenizer. Where it is negative,
+Korean moved less than English and there is nothing left to attribute at all.
+
+**The ordering is the answer.** Putting the three things that move Korean
+characters-per-token on one axis (o200k_base, against the directly written
+samples):
+
+| What changes | How far chars/token moves |
+|---|---:|
+| Corpus (translated speech → written prose) | +5.9% |
+| Register (dialogue → technical writing) | +54.9% |
+| Tokenizer (cl100k_base → Mistral Small 3) | +89.9% |
+
+⇒ The corpus is the **smallest** of the three. The other two are already
+chosen by the reader on the page.
+
+⚠️ **Limit**: the directly written samples are 1,242 Korean and
+2,276 English characters, two orders of magnitude smaller than
+the TED2020 sample of 3,000 sentence pairs per pair. These figures are for
+direction and magnitude, not for quoting to three significant figures. A larger
+natively written corpus would mean re-measuring this section.
+
+---
+
+## Sources and licences
+
+- Corpus: TED2020 — Reimers & Gurevych (2020), [OPUS](https://opus.nlpl.eu/TED2020/).
+  The underlying TED subtitles are CC BY-NC-ND 4.0, so **the text is not carried
+  in this repository.** The download script and the checksums are.
+- Tokenizers: the OpenAI encodings come from
+  [gpt-tokenizer](https://github.com/niieani/gpt-tokenizer) (MIT, a port of
+  tiktoken). The rest are `tokenizer.json` files from the Hugging Face Hub.
+  **Only ungated repositories are used** — a reproduction that needs an account
+  is not one — so Llama and Gemma are read from community mirrors of the same
+  files.
+- The figures in this document: CC BY 4.0.
+
+---
+
+## Citing these figures
+
+The figures in this document are **CC BY 4.0**: use them without asking, name
+where they came from.
+
+> Woongstar (2026). *tokenpace: token density by language, and reading speed
+> converted to tok/s* (measured 2026-09-02). <https://tokenpace.woongstar.com/>
+
+The machine-readable form is [`CITATION.cff`](../CITATION.cff) (CFF 1.2.0).
