@@ -49,11 +49,9 @@ vibes tool.
 
 ## What is most useful
 
-**A sourced reading baseline for a new language.** This is the top of the list.
-It needs a peer-reviewed measurement of adult silent reading speed with a
-sample size and a stated population — see the entries in
-`data/reading-speed-sources.json` for the shape. Second-language-learner studies
-and low-vision clinical maxima do not qualify; both were rejected already.
+**A sourced reading baseline.** This is the top of the list, and it has its own
+section below — the reading baseline is the one number this whole project rests
+on, and right now it rests on less than it should.
 
 **A tokenizer worth adding.** Add it to `TOKENIZERS` in
 `tools/corpus-config.mjs`. The Hugging Face repository must be ungated: a
@@ -65,6 +63,72 @@ translated prose, which is a real limitation.
 
 **UI language beyond ko/en.** Requires a full string set in `assets/js/i18n.js`
 *and* rule 2 satisfied.
+
+## Wanted: reading-speed sources
+
+This is the most valuable thing anyone can bring, and it needs a library card
+more than it needs a compiler.
+
+Every verdict on the site is drawn against a reading-speed baseline. Two of the
+four measured languages have no baseline at all, and the one for Korean rests on
+a single small study. We would rather say that plainly than paper over it — but
+we would rather fix it.
+
+### The gaps, in priority order
+
+1. **Japanese and Chinese.** Token density is measured for both, and both ship
+   with no baseline and an empty verdict. `IReST` (Trauzettel-Klosinski & Dietz,
+   2012, [10.1167/iovs.11-8284](https://doi.org/10.1167/iovs.11-8284)) is the
+   most promising lead: it standardises difficulty-matched passages across 17
+   languages, which is exactly the property this comparison needs. The norm
+   values are in the paper. Nobody here has read it yet.
+2. **A second Korean source.** The current one is n=42 from an ophthalmology
+   study — near-vision testing on short sentences, not sustained prose. It is
+   the best primary source we found, and one study is not a literature. Korean
+   reading-research venues (KCI) are the obvious place to look.
+3. **A better English source** is not needed. Brysbaert (2019) is a
+   meta-analysis of 190 studies, n=18,573.
+
+### What a source has to clear
+
+All of these, because a baseline that fails any one of them would quietly make
+the site wrong rather than visibly incomplete:
+
+- **Primary and peer-reviewed.** Not a blog, not a citation of a citation.
+- **Adult, first-language readers.** Second-language-learner rates measure
+  something else and are substantially slower.
+- **Silent reading of continuous prose.** Not oral reading, not word lists, not
+  a low-vision clinical *maximum* — those are ceilings, not habitual rates.
+- **Reports n and a spread** (SD, or a range). A mean with no spread cannot be
+  published here: the site shows how far the conclusion moves across the spread,
+  and with no spread there is nothing honest to show.
+- **A DOI or a stable URL**, so a reader can check us.
+
+Both a learner-population study and a low-vision maximum were already rejected
+on these grounds. The rejections are recorded in
+`data/reading-speed-sources.json` under each unavailable language — read those
+before proposing something similar.
+
+### How to add one
+
+Add the language entry to `data/reading-speed-sources.json` following the shape
+of `en` (a `range`) or `ko` (an `sd`, plus a derived `range` with `rangeBasis`
+saying so). Fill in `caveats` honestly — the site prints them. Then:
+
+```sh
+cd tools && npm run derive && npm run build-site
+```
+
+Everything downstream is generated: never hand-edit `data/reading-pace.json`,
+`docs/reading-speed.md`, or `assets/data/*.js`. A language ships to the UI only
+once it has both a sourced baseline and a full string set (see rule 2).
+
+### What is at stake, concretely
+
+For Korean, ±1 SD around the mean spans **1.97 – 8.80 tok/s**. The verdict at
+35 tok/s holds at either end; the 5 tok/s lane flips, which is why that lane is
+on screen. So the conclusion is not fragile — but it is carried by one study,
+and that is worth fixing rather than defending.
 
 ## What will be pushed back on
 
