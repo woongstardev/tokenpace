@@ -98,7 +98,7 @@ would be worse than an empty field. The reasoning is recorded in
 
 The measurements are the product here, so they come with a citation:
 
-> Woongstar (2026). *tokenpace: token density by language, and reading speed
+> Yang, J. (2026). *tokenpace: token density by language, and reading speed
 > converted to tok/s* (measured 2026-09-02).
 > <https://tokenpace.woongstar.com/>
 
@@ -175,6 +175,12 @@ that moved, instead of surfacing later as an unexplained diff. It also refuses
 to let the measurement quietly age: past 180 days it says so, past a year it
 fails. What it cannot detect is a new model family shipping. Nothing can; that
 one is a person's job, and the failing build is how the person gets asked.
+
+One caveat worth knowing about that weekly job: GitHub disables scheduled
+workflows after 60 days without repository activity, and a quiet repository is
+precisely when a freshness check matters. It emails the owner first. Nothing
+here can detect that about itself, so it is written down rather than coded
+around — see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 That job is the one claim this project cannot afford to have untested, so it
 has been run end-to-end on demand rather than waited for:

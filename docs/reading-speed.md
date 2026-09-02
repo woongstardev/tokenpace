@@ -4,6 +4,8 @@
 
 **한국어** · [English ↓](#reading-speed-in-tokss)
 
+> 영문 절은 132행부터입니다 — `# Reading speed, in tok/s` 를 찾으십시오.
+
 - **측정일**: 2026-09-02
 - **재현**: `cd tools && npm run derive`
 - **입력**: [`data/reading-speed-sources.json`](../data/reading-speed-sources.json) (사람이 쓴 출처 있는 상수)
@@ -119,7 +121,7 @@ tok/s 가 아니다.
 
 이 문서의 수치는 **CC BY 4.0** 이다 — 쓰는 데 허락이 필요 없고, 출처 표기만 요구한다.
 
-> Woongstar (2026). *tokenpace: 언어별 토큰 밀도와 tok/s 로 환산한 읽기 속도*
+> Yang, J. (2026). *tokenpace: 언어별 토큰 밀도와 tok/s 로 환산한 읽기 속도*
 > (측정 2026-09-02). <https://tokenpace.woongstar.com/>
 
 기계가 읽는 형식은 [`CITATION.cff`](../CITATION.cff) 에 있다 (CFF 1.2.0).
@@ -261,7 +263,7 @@ individual variation overwhelms its average, that is the only honest design.
 The figures in this document are **CC BY 4.0**: use them without asking, name
 where they came from.
 
-> Woongstar (2026). *tokenpace: token density by language, and reading speed
+> Yang, J. (2026). *tokenpace: token density by language, and reading speed
 > converted to tok/s* (measured 2026-09-02). <https://tokenpace.woongstar.com/>
 
 The machine-readable form is [`CITATION.cff`](../CITATION.cff) (CFF 1.2.0).
