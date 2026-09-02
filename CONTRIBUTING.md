@@ -97,17 +97,22 @@ the site wrong rather than visibly incomplete:
 - **Primary and peer-reviewed.** Not a blog, not a citation of a citation.
 - **Adult, first-language readers.** Second-language-learner rates measure
   something else and are substantially slower.
-- **Silent reading of continuous prose.** Not oral reading, not word lists, not
-  a low-vision clinical *maximum* — those are ceilings, not habitual rates.
+- **Silent reading of continuous prose, with the eyes moving normally.** Not
+  oral reading, not word lists, not RSVP (words flashed one at a time in a fixed
+  spot, which suppresses eye movements), and not a clinical *maximum* — those
+  are ceilings, not habitual rates. The gap is not small: an RSVP study of
+  Korean reports 296 wpm where the study we use reports 202.
 - **Reports n and a spread** (SD, or a range). A mean with no spread cannot be
   published here: the site shows how far the conclusion moves across the spread,
   and with no spread there is nothing honest to show.
 - **A DOI or a stable URL**, so a reader can check us.
 
-Both a learner-population study and a low-vision maximum were already rejected
-on these grounds. The rejections are recorded in
-`data/reading-speed-sources.json` under each unavailable language — read those
-before proposing something similar.
+Three candidates have already been rejected on these grounds — a
+learner-population study, a low-vision maximum, and an RSVP maximum. Every
+rejection is recorded in `data/reading-speed-sources.json` with its numbers and
+its reason (see `consideredAndRejected` under `ko`, and `reason` under the
+unavailable languages). Read those first: they say more about the bar than this
+list does, and one of them is probably the paper you were about to send.
 
 ### How to add one
 
