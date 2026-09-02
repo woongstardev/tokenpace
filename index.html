@@ -130,13 +130,16 @@
     <p class="reduced-motion-note" id="reduced-motion-note" hidden data-i18n="reducedMotionNote">
       시스템 설정이 「모션 줄이기」라서 애니메이션 대신 시간대별 스냅샷으로 보여줍니다.
     </p>
+    <p class="view-toggle">
+      <button type="button" id="view-toggle" class="linklike" aria-pressed="false" data-i18n="viewAsTable">표로 보기</button>
+    </p>
     <div id="lane-list" class="lane-list"></div>
   </section>
 
   <!-- ─────────────────────────────────────────────── verdict -->
   <section class="panel" aria-labelledby="verdict-h">
     <h2 id="verdict-h" class="section-h" data-i18n="verdictHeading">판정</h2>
-    <div id="verdict" class="verdict" aria-live="polite"></div>
+    <div id="verdict" class="verdict"></div>
   </section>
 
   <!-- ─────────────────────────────────────────────── evidence -->
@@ -144,6 +147,11 @@
     <h2 id="evidence-h" class="section-h" data-i18n="evidenceHeading">이 숫자는 어디서 왔나</h2>
     <div id="evidence"></div>
   </section>
+
+  <!-- The page's only live region. Everything a screen reader is told goes
+       through here, one short sentence at a time, so nothing can queue a
+       paragraph behind a slider. -->
+  <p id="announcer" class="sr-only" role="status"></p>
 
 </main>
 

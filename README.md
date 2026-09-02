@@ -224,9 +224,20 @@ fix and [`tests/site.test.mjs`](tests/site.test.mjs) pins it.
 
 **Accessibility.** The page is an animation by nature, which makes
 `prefers-reduced-motion` a correctness requirement rather than a nicety. Under
-it, the lanes become a table of timed snapshots carrying the same information.
-`aria-live` is on the verdict, never on the streaming text — announcing every
-token would make a screen reader unusable.
+it, the lanes become a table of timed snapshots carrying the same information —
+and a button offers that table to everyone else too, because the people an
+animation serves worst are not the same set as the people who asked their OS to
+reduce motion.
+
+Announcements are treated as a budget rather than a feature. The page has one
+live region, and what goes into it is a sentence. That is a correction: the
+verdict block used to carry `aria-live` itself and is re-rendered on every
+`input` event, so dragging the TTFT slider for under two seconds queued 33
+announcements and roughly fifteen thousand characters of speech — with axe
+reporting a clean page, because axe reads a page standing still and has no way
+to see how often a region changes. `tools/check-a11y.mjs` now performs the drag
+and fails if one gesture costs more than three announcements or 400 characters;
+the same drag costs one announcement of 67 characters today.
 
 ![Under reduced motion the lanes become a table of timed snapshots, followed by the verdict and the sources](docs/screenshots/site-reduced-motion.png)
 

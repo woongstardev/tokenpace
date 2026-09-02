@@ -252,6 +252,44 @@ function scheduleRerender() {
   }, 200);
 }
 
+/* ───────────────────────────────────────────────────────────── announcing */
+
+/**
+ * Everything a screen reader is told goes through one short live region.
+ *
+ * The verdict block used to carry aria-live itself, and renderVerdict() runs on
+ * every `input` event. Measured on 2026-09-03: a 1.8-second drag of the TTFT
+ * slider replaced a 414-character live region 32 times, queueing roughly
+ * thirteen thousand characters of speech for one gesture. The control was
+ * unusable with a screen reader while looking perfectly fine to axe, which has
+ * no way to see how often a region changes.
+ *
+ * Two rules follow. Announcements are a sentence, not a section — the detail
+ * stays on screen where it can be read at leisure. And a value being dragged
+ * announces when it settles, not while it moves.
+ */
+const announcer = () => document.getElementById('announcer');
+let announceTimer = null;
+/** Nothing is announced until the visitor has done something. Speaking the
+ *  verdict at someone who has just arrived interrupts them reading the page. */
+let announcementsArmed = false;
+export function armAnnouncements() { announcementsArmed = true; }
+
+function announce(text, { delay = 0 } = {}) {
+  if (!announcementsArmed) return;
+  clearTimeout(announceTimer);
+  const say = () => {
+    const node = announcer();
+    if (!node || node.textContent === text) return;
+    node.textContent = text;
+  };
+  if (delay) announceTimer = setTimeout(say, delay);
+  else say();
+}
+
+/** Should the lanes be a table rather than an animation? */
+const showTimeline = () => state.timeline ?? prefersReducedMotion();
+
 /* ────────────────────────────────────────────────────────────────── lanes */
 
 let laneNodes = [];
@@ -265,7 +303,13 @@ function renderLanes() {
 
   $('#reduced-motion-note').hidden = !prefersReducedMotion();
 
-  if (prefersReducedMotion()) {
+  const toggle = $('#view-toggle');
+  if (toggle) {
+    toggle.setAttribute('aria-pressed', String(showTimeline()));
+    toggle.textContent = showTimeline() ? t().viewAsLanes : t().viewAsTable;
+  }
+
+  if (showTimeline()) {
     list.replaceChildren(renderStaticTimeline(lanes));
     return;
   }
@@ -367,18 +411,31 @@ function paintFrame(elapsed) {
         ? `${t().laneDone} · ${finishTime(lane).toFixed(1)}s`
         : `${due} / ${lane.total}`;
     node.body.classList.toggle('is-waiting', waiting);
+
+    // A lane crossing the finish line is the one event during playback worth
+    // saying out loud. Announcing tokens would be unusable — the lanes mutate
+    // about 1,700 times in six seconds — but announcing nothing leaves a
+    // screen reader user with no access to the race the page is built around.
+    // Three lanes means three sentences over the whole run.
+    if (done && !node.announcedDone) {
+      node.announcedDone = true;
+      announce(t().laneFinished(lane.label, finishTime(lane).toFixed(1)));
+    }
   }
 }
 
 function play() {
-  if (prefersReducedMotion()) return;
+  if (showTimeline()) return;
   stop();
   renderLanes();
   const lanes = laneNodes.map((n) => n.lane);
   if (!lanes.length || !lanes[0].total) return;
 
+  for (const node of laneNodes) node.announcedDone = false;
+
   const end = Math.max(...lanes.map(finishTime));
   clock.start();
+  announce(t().playStarted(lanes.length));
   state.hiddenForSeconds = 0;
   $('#play').textContent = t().playing;
 
@@ -486,6 +543,13 @@ function renderVerdict() {
   }
 
   box.replaceChildren(...nodes);
+
+  // One sentence, after the value stops moving. The detail is on screen; what
+  // a live region owes someone is the answer, not the whole section again.
+  const fastest = Math.max(...state.speeds);
+  announce(s.verdictAnnounce(fastest, (fastest / readingTps).toFixed(1), readingTps.toFixed(1)), {
+    delay: 500,
+  });
 }
 
 /* ─────────────────────────────────────────────────────────────── evidence */
@@ -638,6 +702,23 @@ function wire() {
       commit();
     });
   }
+
+  // Reduced motion turns the lanes into a table, and until 2026-09-03 that was
+  // the only way to get one. But the people least served by an animation are
+  // not the same set as the people who asked the OS to reduce motion — a
+  // screen reader user who never touched that setting got the animation and no
+  // equivalent. The setting still picks the default; it no longer decides.
+  // Any deliberate interaction arms the live region. Pointer, key or touch —
+  // whichever came first, the visitor is now driving.
+  for (const ev of ['pointerdown', 'keydown', 'touchstart']) {
+    document.addEventListener(ev, armAnnouncements, { once: true, passive: true });
+  }
+
+  $('#view-toggle').addEventListener('click', () => {
+    state.timeline = !showTimeline();
+    stop();
+    renderLanes();
+  });
 
   $('#theme-toggle').addEventListener('click', () => {
     state.theme = { auto: 'light', light: 'dark', dark: 'auto' }[state.theme];

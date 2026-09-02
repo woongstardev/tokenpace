@@ -44,6 +44,14 @@ export const STRINGS = {
     snapshotAt: (t) => `${t}초 시점`,
     resumedAfterHidden: (s) => `탭이 가려진 ${s}초 동안 시계를 멈췄습니다.`,
 
+    // 화면에 안 보이는 안내 문구. 화면에는 이미 쓰여 있고, 이건 읽어 주는 쪽을 위한 것이다.
+    viewAsTable: '표로 보기',
+    viewAsLanes: '움직이는 레인으로 보기',
+    playStarted: (n) => `${n}개 레인 재생을 시작합니다.`,
+    laneFinished: (label, secs) => `${label} 완료, ${secs}초.`,
+    verdictAnnounce: (speed, ratio, readingTps) =>
+      `가장 빠른 레인 ${speed} tok/s 는 읽기 속도 ${readingTps} tok/s 의 ${ratio}배입니다. 자세한 내용은 판정 항목에 있습니다.`,
+
     verdictHeading: '판정',
     verdictIntro: (tps, unit) =>
       `내 읽기 속도 ${unit} → 이 토크나이저·언어에서 <strong>${tps} tok/s</strong> 에 해당합니다.`,
@@ -137,6 +145,15 @@ export const STRINGS = {
     laneDone: 'Done',
     snapshotAt: (t) => `at ${t}s`,
     resumedAfterHidden: (s) => `Clock paused for ${s}s while the tab was hidden.`,
+
+    // Never shown. The screen already carries this; these are for the reader
+    // that speaks, which needs a sentence rather than a section.
+    viewAsTable: 'Show as a table',
+    viewAsLanes: 'Show as moving lanes',
+    playStarted: (n) => `Playing ${n} lanes.`,
+    laneFinished: (label, secs) => `${label} finished at ${secs} seconds.`,
+    verdictAnnounce: (speed, ratio, readingTps) =>
+      `The fastest lane, ${speed} tok/s, is ${ratio} times reading speed of ${readingTps} tok/s. The verdict section has the detail.`,
 
     verdictHeading: 'Verdict',
     verdictIntro: (tps, unit) =>

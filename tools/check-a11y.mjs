@@ -17,7 +17,7 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 
 import { REPO_ROOT } from './corpus-config.mjs';
-import { findChrome, serveRepo, until, withChrome } from './browser.mjs';
+import { findChrome, serveRepo, sleep, until, withChrome } from './browser.mjs';
 
 const PORT = 8791;
 /** Each scenario gets its own debug port. A killed Chrome can hold its port for
@@ -76,6 +76,67 @@ async function auditScenario(chromePath, axeSource, scenario, index) {
   );
 }
 
+/**
+ * How much speech does one gesture cost?
+ *
+ * axe checks the page as it stands still. It has no way to see how often a
+ * live region changes, and that is where this page went wrong: the verdict
+ * block carried aria-live and was re-rendered on every `input` event, so
+ * dragging the TTFT slider for under two seconds replaced a 414-character
+ * region 32 times — roughly thirteen thousand characters queued for one drag,
+ * with axe reporting nothing. Announcements are a budget, so it is checked
+ * like one.
+ */
+const DRAG_ANNOUNCEMENT_BUDGET = { count: 3, chars: 400 };
+
+async function auditLiveRegions(chromePath) {
+  return withChrome({ chromePath, debugPort: DEBUG_PORT_BASE + 90 }, async (cdp) => {
+    await cdp.send('Page.navigate', { url: `http://127.0.0.1:${PORT}/?tps=5,10,35` });
+    await until('the page to finish rendering', () =>
+      cdp.evaluate('document.querySelectorAll(".lane, table.timeline").length > 0')
+    );
+
+    await cdp.evaluate(`
+      window.__spoken = [];
+      for (const r of document.querySelectorAll('[aria-live], [role="status"], [role="alert"]')) {
+        new MutationObserver(() => {
+          const text = (r.textContent || '').replace(/\\s+/g, ' ').trim();
+          if (text) window.__spoken.push(text.length);
+        }).observe(r, { childList: true, subtree: true, characterData: true });
+      }
+      'ok'`);
+
+    // A drag is many input events over a couple of seconds, not one jump.
+    await cdp.evaluate(`
+      (async () => {
+        document.dispatchEvent(new Event('pointerdown'));
+        const el = document.getElementById('ttft-input');
+        for (let v = 0; v <= 30; v++) {
+          el.value = (v / 10).toFixed(1);
+          el.dispatchEvent(new Event('input', { bubbles: true }));
+          await new Promise((r) => setTimeout(r, 60));
+        }
+        el.dispatchEvent(new Event('change', { bubbles: true }));
+      })(); 'started'`);
+    await sleep(3200);
+
+    const spoken = JSON.parse(await cdp.evaluate('JSON.stringify(window.__spoken)'));
+
+    // And the animation must have an equivalent that does not depend on the
+    // visitor having asked their OS to reduce motion.
+    const toggled = JSON.parse(
+      await cdp.evaluate(`
+        document.getElementById('view-toggle').click();
+        JSON.stringify({
+          table: !!document.querySelector('table.timeline'),
+          pressed: document.getElementById('view-toggle').getAttribute('aria-pressed'),
+        })`)
+    );
+
+    return { spoken, toggled };
+  });
+}
+
 async function main() {
   const chromePath = await findChrome();
   const axeSource = await readFile(
@@ -110,6 +171,26 @@ async function main() {
         problems++;
         console.log(`         page scrolls horizontally by ${overflow}px`);
       }
+    }
+
+    const { spoken, toggled } = await auditLiveRegions(chromePath);
+    const total = spoken.reduce((n, c) => n + c, 0);
+    if (spoken.length > DRAG_ANNOUNCEMENT_BUDGET.count || total > DRAG_ANNOUNCEMENT_BUDGET.chars) {
+      problems++;
+      console.log('  FAIL live-region budget');
+      console.log(
+        `         one slider drag queued ${spoken.length} announcement(s), ${total} characters ` +
+          `(budget ${DRAG_ANNOUNCEMENT_BUDGET.count} / ${DRAG_ANNOUNCEMENT_BUDGET.chars})`
+      );
+    } else {
+      console.log(`  ok   live-region budget (${spoken.length} announcement(s), ${total} chars per drag)`);
+    }
+
+    if (!toggled.table || toggled.pressed !== 'true') {
+      problems++;
+      console.log('  FAIL the animation has no equivalent without prefers-reduced-motion');
+    } else {
+      console.log('  ok   the lanes can be read as a table without prefers-reduced-motion');
     }
   } finally {
     server.close();
