@@ -84,6 +84,22 @@ baseline: no source we trust was found, and a plausible-looking invented default
 would be worse than an empty field. The reasoning is recorded in
 [`data/reading-speed-sources.json`](data/reading-speed-sources.json).
 
+## Citing this
+
+The measurements are the product here, so they come with a citation:
+
+> Woongstar (2026). *tokenpace: token density by language, and reading speed
+> converted to tok/s* (measured 2026-09-02).
+> <https://tokenpace.woongstar.com/>
+
+[`CITATION.cff`](CITATION.cff) carries the machine-readable version — GitHub's
+"Cite this repository" button reads it, as do Zotero and cffconvert. It ships
+with the site as well as the repository, so a citation keeps resolving even if
+this repository does not.
+
+The licence to respect is **CC BY 4.0** on `data/` and `docs/`: use the numbers
+freely, name where they came from. There is no DOI yet.
+
 ## Reproducing the numbers
 
 Nothing here is a figure someone typed in. Everything regenerates:

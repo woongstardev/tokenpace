@@ -60,3 +60,14 @@ TED2020 은 구어체 산문이다. LLM 이 실제로 쏟아내는 설명문·�
   나머지는 Hugging Face Hub 의 `tokenizer.json`. **게이트 없는 리포만 쓴다** — 재현에 HF 계정이
   필요해지면 재현이 아니다. Llama·Gemma 는 같은 파일의 커뮤니티 미러를 읽는다.
 - 이 문서의 수치: CC BY 4.0.
+
+---
+
+## 이 수치를 인용한다면
+
+이 문서의 수치는 **CC BY 4.0** 이다 — 쓰는 데 허락이 필요 없고, 출처 표기만 요구한다.
+
+> Woongstar (2026). *tokenpace: 언어별 토큰 밀도와 tok/s 로 환산한 읽기 속도*
+> (측정 2026-09-02). <https://tokenpace.woongstar.com/>
+
+기계가 읽는 형식은 [`CITATION.cff`](../CITATION.cff) 에 있다 (CFF 1.2.0).

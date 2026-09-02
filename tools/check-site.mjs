@@ -244,6 +244,7 @@ const SERVED_TOP_LEVEL = new Set([
   'data',         // the sourced constants the measurements derive from
   'corpus',       // the manifest and the CC0 samples (cache/ is excluded)
   'docs',         // the two measurement documents (the rest is excluded)
+  'CITATION.cff', // how to cite the measurements the site distributes
   'LICENSE',      // MIT, for the code
   'LICENSES.md',  // CC BY 4.0 / CC0, for what the site actually distributes
 ]);
@@ -429,6 +430,66 @@ async function checkDeployManifest() {
   if (!failures.some((f) => f.startsWith(check))) ok(check);
 }
 
+/* ────────────────────────────────────────────────── 9. the citation file */
+
+/**
+ * Being cited is this project's stated goal, so the citation metadata is a
+ * product surface, not paperwork. What makes it rot is that nothing reads it:
+ * the site can be renamed, moved to another origin or re-licensed and
+ * CITATION.cff would go on describing the old one, silently, to exactly the
+ * people who took the trouble to cite properly.
+ *
+ * This does not parse YAML — the repository installs nothing to run its own
+ * checks — it reads the few top-level scalars that have to agree with
+ * something else in the tree, which is all that can drift.
+ */
+async function checkCitation() {
+  const check = 'the citation file describes this project';
+  const file = path.join(ROOT, 'CITATION.cff');
+  if (!(await exists(file))) return fail(check, 'CITATION.cff is missing');
+  const text = await readFile(file, 'utf8');
+
+  const scalar = (key) =>
+    text.match(new RegExp(`^${key}:[ \\t]*(.+?)[ \\t]*$`, 'm'))?.[1];
+
+  if (scalar('cff-version') !== '1.2.0') {
+    fail(check, `cff-version must be 1.2.0, found ${scalar('cff-version') ?? 'nothing'}`);
+  }
+  if (scalar('title') !== 'tokenpace') {
+    fail(check, `title must be the project name, found ${scalar('title') ?? 'nothing'}`);
+  }
+
+  // The url must be the origin the site actually deploys to. index.html's
+  // canonical is already tied to wrangler.jsonc by checkDeployManifest, so
+  // agreeing with canonical means agreeing with the deploy.
+  const html = await readFile(path.join(ROOT, 'index.html'), 'utf8');
+  const canonical = html.match(/<link\s+rel="canonical"\s+href="([^"]*)"/)?.[1];
+  const url = scalar('url');
+  if (canonical && url !== canonical) {
+    fail(check, `url is ${url}, but the page's canonical is ${canonical}`);
+  }
+
+  // CC BY 4.0 is the licence on data/ and docs/ — the measurements, which are
+  // the thing this file exists to get cited. If LICENSES.md ever moves them to
+  // something else, this has to move with it.
+  const licenses = await readFile(path.join(ROOT, 'LICENSES.md'), 'utf8');
+  const license = scalar('license');
+  if (license !== 'CC-BY-4.0') {
+    fail(check, `license should be CC-BY-4.0, the licence on the measurements; found ${license ?? 'nothing'}`);
+  } else if (!licenses.includes('CC BY 4.0')) {
+    fail(check, 'CITATION.cff claims CC-BY-4.0 but LICENSES.md no longer mentions CC BY 4.0');
+  }
+
+  // A DOI is optional — there is not one yet — but a malformed one would be
+  // worse than none, because it is the field people paste without looking.
+  const doi = scalar('doi');
+  if (doi !== undefined && !/^10\.\d{4,9}\/\S+$/.test(doi)) {
+    fail(check, `doi is not a DOI: ${doi}`);
+  }
+
+  if (!failures.some((f) => f.startsWith(check))) ok(check);
+}
+
 /* ──────────────────────────────────────────────────────────────────── run */
 
 console.log('Checking project invariants...\n');
@@ -440,6 +501,7 @@ await checkLinks();
 await checkSources();
 await checkLocalAssets();
 await checkDeployManifest();
+await checkCitation();
 
 if (failures.length) {
   console.error(`\n${failures.length} problem(s):`);

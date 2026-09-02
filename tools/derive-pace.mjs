@@ -15,6 +15,7 @@
  */
 
 import { readFile, writeFile } from 'node:fs/promises';
+import { citationBlock } from './cite.mjs';
 import path from 'node:path';
 
 import { REPO_ROOT, TOKENIZERS, LANGUAGES } from './corpus-config.mjs';
@@ -223,6 +224,10 @@ ${missing ? `### 출처를 확보하지 못한 언어\n\n${missing}\n\n이 언�
 
 ⇒ 사이트는 이 값을 **슬라이더의 초기값으로만** 쓰고, 사용자가 자기 읽기 속도를 직접 재서
 덮어쓸 수 있게 한다. 개인차가 평균을 압도하는 지표에서는 그게 유일하게 정직한 설계다.
+
+---
+
+${citationBlock(out.measuredAt)}
 `;
 }
 

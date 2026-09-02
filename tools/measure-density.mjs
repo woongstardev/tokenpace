@@ -19,6 +19,7 @@
  */
 
 import { mkdir, readFile, writeFile, readdir } from 'node:fs/promises';
+import { citationBlock } from './cite.mjs';
 import path from 'node:path';
 
 import { REPO_ROOT, CACHE_DIR, SAMPLES_DIR, PARALLEL_SETS, TOKENIZERS, LANGUAGES } from './corpus-config.mjs';
@@ -228,6 +229,10 @@ ${registerRows}
   나머지는 Hugging Face Hub 의 \`tokenizer.json\`. **게이트 없는 리포만 쓴다** — 재현에 HF 계정이
   필요해지면 재현이 아니다. Llama·Gemma 는 같은 파일의 커뮤니티 미러를 읽는다.
 - 이 문서의 수치: CC BY 4.0.
+
+---
+
+${citationBlock(r.measuredAt)}
 `;
 }
 

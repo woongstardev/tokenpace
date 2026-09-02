@@ -31,6 +31,11 @@
 /LICENSES.md
   Content-Type: text/plain; charset=utf-8
 
+# YAML, and no browser has a type for .cff. Without this it downloads, which
+# is a poor answer to someone who followed a "how to cite this" link.
+/CITATION.cff
+  Content-Type: text/plain; charset=utf-8
+
 # The vendored tokenizer is content-addressed by its pinned version and never
 # changes in place, so it can be cached hard.
 /assets/vendor/*

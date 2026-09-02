@@ -1,0 +1,89 @@
+cff-version: 1.2.0
+title: tokenpace
+message: >-
+  If you use these measurements, or the reading-speed baseline derived from
+  them, please cite this repository.
+type: software
+
+# On the licence field: CFF allows a list, but the schema reads a list as OR,
+# which would be a lie here — this project's parts are licensed differently and
+# all of them apply at once. So this names the licence of the thing the file
+# exists for: the measurements, CC BY 4.0, the one that asks for attribution.
+# The code is MIT and the sample texts are CC0. See LICENSES.md.
+license: CC-BY-4.0
+
+authors:
+  - family-names: Woongstar
+    alias: woongstardev
+
+abstract: >-
+  Tokens per second is the unit benchmarks report; characters per second is what
+  people read. tokenpace measures the conversion between them — characters per
+  token for six tokenizers (o200k_base, cl100k_base, Llama 3.1, Qwen3, Gemma 3,
+  Mistral Small 3) across English, Korean, Japanese and Chinese, on 3,000
+  parallel sentence pairs per language from TED2020 — and uses it to express
+  human reading speed in tok/s. That figure lands near 5 tok/s in both English
+  and Korean, which places most current decoding speeds well above it and moves
+  the perceptual question to time-to-first-token and answer length. Every figure
+  regenerates from the raw corpora with a committed script; a weekly CI job
+  re-derives them and fails if the result differs.
+
+keywords:
+  - tokenization
+  - tokens per second
+  - reading speed
+  - large language models
+  - Korean
+  - visualization
+
+repository-code: https://github.com/woongstardev/tokenpace
+url: https://tokenpace.woongstar.com/
+
+# The sources the measurements rest on. The reading-speed baseline is only as
+# good as these two, and both are cited on the site as well as here.
+references:
+  - type: article
+    title: >-
+      How many words do we read per minute? A review and meta-analysis of
+      reading rate
+    authors:
+      - family-names: Brysbaert
+        given-names: Marc
+    journal: Journal of Memory and Language
+    volume: 109
+    year: 2019
+    doi: 10.1016/j.jml.2019.104047
+    notes: >-
+      English baseline: 238 wpm, silent reading of non-fiction, 190 studies,
+      18,573 participants.
+  - type: article
+    title: >-
+      한국어 읽기 속도 측정 애플리케이션의 유효성 및 정상인의 읽기 속도에 대한 사전 연구
+    authors:
+      - family-names: 송
+        given-names: 지호
+      - family-names: 김
+        given-names: 재형
+      - family-names: 형
+        given-names: 성민
+    journal: 대한안과학회지
+    volume: 57
+    issue: 4
+    start: 642
+    end: 649
+    year: 2016
+    doi: 10.3341/jkos.2016.57.4.642
+    notes: >-
+      Korean baseline: 549.7 characters/min (SD 348.9), n=42, silent reading at
+      10 pt. The standard deviation is 63% of the mean, which is why the site
+      lets you measure your own speed instead.
+  - type: data
+    title: TED2020
+    authors:
+      - name: OPUS
+    year: 2020
+    url: https://opus.nlpl.eu/TED2020/corpus/version/TED2020
+    notes: >-
+      The parallel corpus the density figures are measured on. Derived from TED
+      talk transcripts under CC BY-NC-ND 4.0, so it is downloaded and checksummed
+      rather than redistributed here.
