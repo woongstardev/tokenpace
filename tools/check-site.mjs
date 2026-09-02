@@ -213,6 +213,106 @@ async function checkLocalAssets() {
   if (!failures.some((f) => f.startsWith(check))) ok(`${check} (${checked} references)`);
 }
 
+/* ───────────────────────────────────── 8. the deploy ships the site only */
+
+/**
+ * The deployed site is index.html plus assets/. Everything else here exists to
+ * make the numbers checkable, and it is checkable in the repository — uploading
+ * it would publish files with no reader and no route into the page.
+ *
+ * Two ways that quietly stops being true: a new top-level entry joins the
+ * upload because nobody thought about it, or an ignore rule grows until it
+ * swallows something the page loads. This checks both directions, and that the
+ * Worker is still script-free (docs/BRIEF.md §5).
+ */
+const SITE_ENTRIES = new Set(['index.html', 'assets', '_headers']);
+
+/** Enough of JSONC to read wrangler.jsonc: comments out, strings untouched. */
+function stripJsonComments(text) {
+  let out = '';
+  let inString = false, inLine = false, inBlock = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i], next = text[i + 1];
+    if (inLine) { if (c === '\n') { inLine = false; out += c; } continue; }
+    if (inBlock) { if (c === '*' && next === '/') { inBlock = false; i++; } continue; }
+    if (inString) {
+      out += c;
+      if (c === '\\') { out += next; i++; } else if (c === '"') inString = false;
+      continue;
+    }
+    if (c === '"') { inString = true; out += c; continue; }
+    if (c === '/' && next === '/') { inLine = true; continue; }
+    if (c === '/' && next === '*') { inBlock = true; i++; continue; }
+    out += c;
+  }
+  return out;
+}
+
+/**
+ * The subset of .gitignore syntax .assetsignore is allowed to use: a
+ * root-anchored name, or a root-anchored `*.ext` glob. Nothing else.
+ *
+ * The anchor is not a style preference. A .gitignore rule without a leading
+ * slash matches at every depth, so `data/` also hides `assets/data/`, which is
+ * where the page reads its density figures from. Wrangler reports no error for
+ * that — the file is simply absent and the page 404s at runtime (measured
+ * against workerd, 2026-09-02). checkDeployManifest therefore rejects an
+ * unanchored rule outright instead of reasoning about what it might match.
+ */
+function ignoreMatches(pattern, name) {
+  const p = pattern.replace(/^\//, '').replace(/\/+$/, '');
+  if (p === name) return true;
+  if (p.startsWith('*.')) return name.endsWith(p.slice(1));
+  return false;
+}
+
+async function checkDeployManifest() {
+  const check = 'the deploy ships the site and nothing else';
+  const configPath = path.join(ROOT, 'wrangler.jsonc');
+  const ignorePath = path.join(ROOT, '.assetsignore');
+
+  if (!(await exists(configPath)) || !(await exists(ignorePath))) {
+    return fail(check, 'wrangler.jsonc and .assetsignore must both exist');
+  }
+
+  let config;
+  try {
+    config = JSON.parse(stripJsonComments(await readFile(configPath, 'utf8')));
+  } catch (err) {
+    return fail(check, `wrangler.jsonc does not parse: ${err.message}`);
+  }
+
+  if ('main' in config) {
+    fail(check, 'wrangler.jsonc declares a Worker script; this site serves static assets only (BRIEF §5)');
+  }
+  if (config.assets?.directory !== './') {
+    fail(check, 'assets.directory must be "./" — .assetsignore is written against the repository root');
+  }
+
+  const patterns = (await readFile(ignorePath, 'utf8'))
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line && !line.startsWith('#'));
+
+  for (const pattern of patterns) {
+    if (!pattern.startsWith('/')) {
+      fail(check, `.assetsignore rule "${pattern}" is not anchored — write "/${pattern}". Unanchored, it also hides assets/${pattern}`);
+    }
+  }
+
+  for (const entry of await readdir(ROOT)) {
+    const rule = patterns.find((p) => ignoreMatches(p, entry));
+    if (SITE_ENTRIES.has(entry)) {
+      if (rule) fail(check, `.assetsignore rule "${rule}" excludes ${entry}, which the site needs`);
+    } else if (!rule) {
+      fail(check, `${entry} would be uploaded; add it to .assetsignore or to the site itself`);
+    }
+  }
+
+  if (!failures.some((f) => f.startsWith(check))) ok(check);
+}
+
+/*
 /* ──────────────────────────────────────────────────────────────────── run */
 
 console.log('Checking project invariants...\n');
@@ -223,6 +323,7 @@ await checkGeneratedMarkers();
 await checkLinks();
 await checkSources();
 await checkLocalAssets();
+await checkDeployManifest();
 
 if (failures.length) {
   console.error(`\n${failures.length} problem(s):`);

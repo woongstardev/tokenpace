@@ -1,0 +1,29 @@
+{
+  // Deploy target for tokenpace — docs/BRIEF.md §5.
+  //
+  // There is deliberately no "main". A Worker with assets but no script is a
+  // pure file server, which is the whole design: no server code, no dynamic
+  // OG, no live benchmark API. If a "main" ever appears here, that is the
+  // scope leak §3 warns about, not a convenience.
+  //
+  // Deploying is a separate approval (BRIEF §6 item 2) and this file does not
+  // grant it. It exists so that, when it is granted, the deploy is one command
+  // and not an improvisation:  npx wrangler deploy
+  "name": "tokenpace",
+  "compatibility_date": "2026-09-02",
+
+  // *.workers.dev is the surface that needs no domain decision (BRIEF §6
+  // item 3). A custom domain is added as a route later, not by editing this.
+  "workers_dev": true,
+
+  "assets": {
+    // The repository root, minus .assetsignore. _headers is read by the
+    // platform (it carries the real CSP, including frame-ancestors) and is
+    // never served as a file.
+    "directory": "./",
+
+    // No SPA rewrite and no custom 404: this is one page, and rewriting
+    // unknown paths to it would make typos look like the site.
+    "not_found_handling": "none"
+  }
+}

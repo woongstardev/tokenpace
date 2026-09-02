@@ -209,11 +209,38 @@ v1 은 "정확 토크나이저는 wasm + vocab 수 MB라 과하다"고 판단했
    `docs/screenshots/` 에 커밋했고(라이트·다크/영문·모바일 390px·모션 줄이기), README 상단에 걸었다.
    OG 카드(`assets/og.png`)도 전용 페이지 `tools/og-card.html` 에서 생성한다 — §3 "동적 OG 없음, 커밋된 PNG까지" 그대로.
    직접 만져 볼 때는 리포 루트에서 `python3 -m http.server 8000`
-9. ⬜ 공개 여부 결재 요청 (§6 — 라이선스 확정 포함)
+9. ✅ **배포 설정 작성 + workerd 실측 (2026-09-02).** `wrangler.jsonc`(스크립트 없는 정적 자산 전용) ·
+   `.assetsignore`(index.html + `assets/` 만 올라간다) · 불변식 「the deploy ships the site and nothing else」.
+   **배포한 것이 아니라 배포를 한 줄로 만든 것이다** — 2번 결재는 그대로 미결이다(§6).
+10. ⬜ 공개 여부 결재 요청 (§6 — 라이선스 확정 포함)
 
-**배포 시 잊지 말 것** (2번 결재가 나면): ① `index.html` 의 `og:image` 를 절대 URL 로 박는다
-(현재는 도메인 미결이라 상대 경로 — Facebook 은 절대 URL 을 요구한다) ② Workers 정적 자산에서
-`tools/`·`tests/`·`corpus/` 를 제외한다.
+**배포 시 잊지 말 것** (2번 결재가 나면): `index.html` 의 `og:image` 를 절대 URL 로 박는다
+(현재는 도메인 미결이라 상대 경로 — Facebook 은 절대 URL 을 요구한다). 손으로 할 일은 이것 하나다.
+
+**나머지는 설정으로 옮겼다** (2026-09-02). 배포 명령은 `npx wrangler deploy` 하나다.
+
+| 파일 | 하는 일 |
+|---|---|
+| `wrangler.jsonc` | `main` 이 없다 = 워커 코드 없음(§5). `assets.directory` 는 리포 루트, `*.workers.dev` 까지만 |
+| `.assetsignore` | 올라가는 것은 `index.html` + `assets/` 뿐. 하네스·코퍼스·테스트·문서·`.git` 전부 제외 |
+| `tools/check-site.mjs` 의 불변식 8 | 새 최상위 항목이 조용히 업로드에 끼거나, 무시 규칙이 사이트 파일을 삼키면 실패한다 |
+
+**workerd 로 실측했다** (`wrangler dev`, 2026-09-02). 문서가 아니라 응답 코드로 확인한 것:
+
+- 실려야 할 8개 경로 전부 200 (`assets/vendor/` 의 지연 로드 토크나이저 포함)
+- 실리면 안 될 19개 경로 전부 404 — `docs/BRIEF.md`·`CLAUDE.md`·`tools/`·`corpus/`·**`.git/config`** 포함
+- `_headers` 가 실제로 먹는다 — 응답에 `frame-ancestors 'none'`(메타 태그가 못 싣는 것)과
+  벤더 전용 `immutable` 캐시가 붙어 나온다. 「`_headers` 가 진짜 정책」이라는 그 파일의 주장이 검증됐다
+- 헤드리스 크롬으로 그 파일 집합만 띄워 콘솔 에러 0 · 실패 요청 0
+
+⚠️ **밟은 함정 2개** (둘 다 조용히 실패한다):
+
+1. **무시 규칙은 앵커가 없으면 모든 깊이에서 걸린다.** `data/` 라고 쓰면 `assets/data/` 도 같이 사라져
+   페이지가 밀도 수치를 못 읽는다. wrangler 는 아무 경고도 안 한다 — 배포는 성공하고 런타임에 404 가 난다.
+   ⇒ 전부 `/data/` 처럼 앵커하고, 앵커 없는 규칙은 불변식이 거부한다.
+2. **`wrangler dev` 는 리포 루트를 감시 대상으로 잡는데 `.wrangler/` 상태 DB 가 그 안에서 계속 바뀐다**
+   → 무한 리로드. 로컬 미리보기는 §5 대로 `python3 -m http.server 8000` 이 정답이고,
+   굳이 워커 런타임으로 봐야 하면 `--persist-to` 로 상태를 리포 밖에 둔다.
 
 ---
 

@@ -1,0 +1,33 @@
+# Files that exist for the repository, not for the website.
+#
+# Wrangler uploads wrangler.jsonc's assets.directory minus these entries, using
+# .gitignore syntax. _headers is consumed by the platform rather than served,
+# so it is not listed.
+#
+# The deployed site is exactly index.html plus assets/. Everything else here —
+# the measurement harness, the corpus, the tests, the docs — is what makes the
+# numbers checkable, and it is checkable in the repository. Serving it from the
+# site would publish files with no reader and no route into the page.
+#
+# ⚠️ Every rule is anchored with a leading slash, and tools/check-site.mjs
+# rejects one that is not. An unanchored .gitignore rule matches at every
+# depth: `data/` also hides `assets/data/`, where the page reads its density
+# figures. Wrangler reports nothing for that — the file is simply absent and
+# the page 404s at runtime. Measured against workerd, 2026-09-02.
+#
+# check-site.mjs also fails if a top-level entry appears that is neither part
+# of the site nor listed here, so this cannot quietly fall behind.
+
+/*.md
+/LICENSE
+/.git/
+/.github/
+/.gitignore
+/.wrangler/
+/.assetsignore
+/wrangler.jsonc
+/corpus/
+/data/
+/docs/
+/tests/
+/tools/
