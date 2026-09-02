@@ -32,7 +32,7 @@ export const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
  * failed on a CI runner where Chrome took a moment longer to open its debug
  * port — the classic shape of a flaky test. Nothing waits on a guess any more.
  */
-export async function until(describe, check, { timeoutMs = 20_000, intervalMs = 150 } = {}) {
+export async function until(describe, check, { timeoutMs = 20_000, intervalMs = 150, failFast } = {}) {
   const deadline = Date.now() + timeoutMs;
   let lastError;
   while (Date.now() < deadline) {
@@ -40,6 +40,10 @@ export async function until(describe, check, { timeoutMs = 20_000, intervalMs = 
       const value = await check();
       if (value) return value;
     } catch (err) {
+      // Some failures will never become successes — a dead browser will not
+      // start answering. Waiting the full timeout on those turns a clear
+      // diagnosis into a vague one.
+      if (failFast?.(err)) throw err;
       lastError = err;
     }
     await sleep(intervalMs);
@@ -160,12 +164,35 @@ export async function withChrome({ chromePath, debugPort, reducedMotion = false 
   ];
   if (reducedMotion) args.push('--force-prefers-reduced-motion');
 
-  const chrome = spawn(chromePath, args, { stdio: 'ignore' });
+  // stderr is kept, not discarded: when Chrome refuses to start it says why
+  // there, and without it the only symptom is a timeout that reads identically
+  // to a slow machine.
+  const chrome = spawn(chromePath, args, { stdio: ['ignore', 'ignore', 'pipe'] });
+  let stderr = '';
+  chrome.stderr?.on('data', (chunk) => { stderr += chunk; });
+  let exited = null;
+  chrome.on('exit', (code, signal) => { exited = signal ? `signal ${signal}` : `exit code ${code}`; });
+
   try {
-    await until(`Chrome to open its debug port (${debugPort})`, async () => {
-      const res = await fetch(`http://127.0.0.1:${debugPort}/json/version`);
-      return res.ok;
-    });
+    // 60s, not 20s: a cold GitHub runner has taken longer than 20s to open the
+    // port, and the resulting red build says nothing about the project. A long
+    // ceiling costs nothing when the wait is a poll — it returns as soon as
+    // Chrome is up — and a Chrome that dies is caught below in milliseconds
+    // rather than waited out.
+    await until(
+      `Chrome to open its debug port (${debugPort})`,
+      async () => {
+        if (exited) {
+          throw new Error(
+            `Chrome exited (${exited}) before opening its debug port` +
+              `${stderr.trim() ? `: ${stderr.trim().split('\n').slice(-3).join(' / ')}` : ''}`
+          );
+        }
+        const res = await fetch(`http://127.0.0.1:${debugPort}/json/version`);
+        return res.ok;
+      },
+      { timeoutMs: 60_000, failFast: (err) => err.message.startsWith('Chrome exited') }
+    );
     const tab = await (
       await fetch(`http://127.0.0.1:${debugPort}/json/new?about:blank`, { method: 'PUT' })
     ).json();
