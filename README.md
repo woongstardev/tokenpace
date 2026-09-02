@@ -11,6 +11,8 @@ surprise, in Korean too. **Past roughly 10 tok/s the model already outruns you;
 what you still feel is the wait for the first token, and how long the answer is.**
 
 > Live at **<https://tokenpace.woongstar.com/>** — or run it locally, see [Running it](#running-it).
+>
+> MIT for the code, CC BY 4.0 for the measurements, CC0 for the samples — see [LICENSES.md](LICENSES.md).
 
 ![The page mid-stream: a reading-speed lane and three tok/s lanes racing through the same Korean paragraph](docs/screenshots/site-light.png)
 

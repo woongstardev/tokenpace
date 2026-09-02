@@ -92,7 +92,7 @@ export const STRINGS = {
     unitWordsPerMin: 'wpm',
     footer: (date) =>
       `측정일 ${date} · 수치는 <a href="docs/token-density.md">token-density.md</a> · ` +
-      `<a href="docs/reading-speed.md">reading-speed.md</a> 에서 재현 가능합니다. 이 페이지가 만드는 외부 요청 0, 추적 0.`,
+      `<a href="docs/reading-speed.md">reading-speed.md</a> 에서 재현 가능합니다. 이 페이지가 만드는 외부 요청 0, 추적 0. <a href="https://github.com/woongstardev/tokenpace">소스</a>.`,
     customText: '직접 입력',
     customPlaceholder: '여기에 텍스트를 붙여넣으세요…',
   },
@@ -181,7 +181,7 @@ export const STRINGS = {
     unitWordsPerMin: 'wpm',
     footer: (date) =>
       `Measured ${date} · reproduce the numbers from <a href="docs/token-density.md">token-density.md</a> and ` +
-      `<a href="docs/reading-speed.md">reading-speed.md</a>. This page makes zero external requests and zero tracking calls.`,
+      `<a href="docs/reading-speed.md">reading-speed.md</a>. This page makes zero external requests and zero tracking calls. <a href="https://github.com/woongstardev/tokenpace">Source</a>.`,
     customText: 'Paste your own',
     customPlaceholder: 'Paste text here…',
   },
