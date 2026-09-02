@@ -55,6 +55,31 @@ under it. `tools/check-freshness.mjs` runs weekly and compares the tokenizer
 files at the pin against the ones at the head, so an upstream edit is reported
 with the file that moved rather than showing up as an unexplained diff.
 
+## Two things `npm ci` will tell you, and what they mean
+
+**`npm audit` reports 2 high-severity advisories, and they are not going to be
+fixed.** They are libvips CVEs inherited through `sharp`, which
+`@huggingface/transformers` depends on, and there is no patched release. They
+stay, deliberately:
+
+- `sharp` is an image pipeline. This repository loads `AutoTokenizer` and
+  nothing else — the vulnerable code path decodes untrusted images, and no
+  image reaches it here.
+- The advisories are in `tools/`, which is the measurement harness. **The
+  deployed site has zero runtime dependencies**, so none of this is shipped to
+  anyone.
+
+If you are reviewing this and think the reasoning is wrong, say so in an issue —
+that is a better contribution than a version bump that does not exist yet.
+
+**The weekly job can switch itself off.** GitHub disables scheduled workflows
+after 60 days without repository activity, which is exactly the state where a
+freshness check earns its keep: a quiet repository is one nobody is watching.
+GitHub emails the repository owner before doing it. That email is not a
+notification, it is the alarm being disarmed — re-enable the workflow, or run
+it by hand, which resets the clock. Nothing in this repository can detect this
+about itself, which is why it is written here instead of coded around.
+
 ## What language things are written in
 
 This project is bilingual on purpose, and the split is not arbitrary: **English

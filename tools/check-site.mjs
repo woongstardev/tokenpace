@@ -478,7 +478,45 @@ async function checkUnmeasuredDefault() {
   if (!failures.some((f) => f.startsWith(check))) ok(check);
 }
 
-/* ───────────────────────────────────────────────── 10. the citation file */
+/* ─────────────────────────────── 10. the bilingual documents point straight */
+
+/**
+ * The measurement documents are served as text/plain, because text/markdown
+ * makes a browser download them instead of showing them. That is the right
+ * trade, and it has one cost: markdown anchors are dead in plain text. The
+ * "English ↓" link at the top of each file tells a reader nothing about
+ * whether the English half is ten lines down or two hundred.
+ *
+ * So each document carries a line number instead, written at generation time.
+ * A line number is exactly the kind of fact that rots the moment anyone adds a
+ * paragraph, and rots silently — so it is checked rather than trusted.
+ */
+async function checkLanguagePointers() {
+  const check = 'each bilingual document points at its other half';
+  const docs = [
+    ['docs/reading-speed.md', '# Reading speed, in tok/s'],
+    ['docs/token-density.md', '# Token density, measured'],
+  ];
+
+  for (const [rel, heading] of docs) {
+    const lines = (await readFile(path.join(ROOT, rel), 'utf8')).split('\n');
+    const claimed = lines.find((l) => /행부터입니다/.test(l))?.match(/(\d+)행부터/)?.[1];
+    if (!claimed) {
+      fail(check, `${rel} has no pointer to its English half`);
+      continue;
+    }
+    const actual = lines.findIndex((l) => l.startsWith(heading)) + 1;
+    if (!actual) {
+      fail(check, `${rel} has no "${heading}" heading`);
+    } else if (Number(claimed) !== actual) {
+      fail(check, `${rel} says the English half starts at line ${claimed}; it starts at ${actual}`);
+    }
+  }
+
+  if (!failures.some((f) => f.startsWith(check))) ok(check);
+}
+
+/* ───────────────────────────────────────────────── 11. the citation file */
 
 /**
  * Being cited is this project's stated goal, so the citation metadata is a
@@ -550,6 +588,7 @@ await checkSources();
 await checkLocalAssets();
 await checkDeployManifest();
 await checkUnmeasuredDefault();
+await checkLanguagePointers();
 await checkCitation();
 
 if (failures.length) {

@@ -19,7 +19,7 @@
  */
 
 import { mkdir, readFile, writeFile, readdir } from 'node:fs/promises';
-import { citationBlock, citationBlockEn } from './cite.mjs';
+import { citationBlock, citationBlockEn, LANGUAGE_MARK, resolveLanguagePointer } from './cite.mjs';
 import path from 'node:path';
 
 import { REPO_ROOT, CACHE_DIR, SAMPLES_DIR, PARALLEL_SETS, TOKENIZERS, LANGUAGES } from './corpus-config.mjs';
@@ -193,7 +193,10 @@ async function main() {
   );
   console.log('\nWrote data/token-density.json');
 
-  await writeFile(path.join(REPO_ROOT, 'docs', 'token-density.md'), renderMarkdown(results));
+  await writeFile(
+    path.join(REPO_ROOT, 'docs', 'token-density.md'),
+    resolveLanguagePointer(renderMarkdown(results), { heading: '# Token density, measured', ko: true })
+  );
   console.log('Wrote docs/token-density.md');
 }
 
@@ -268,6 +271,8 @@ function renderMarkdown(r) {
 # 토큰 밀도 실측 (token density)
 
 **한국어** · [English ↓](#token-density-measured)
+
+${LANGUAGE_MARK}
 
 - **측정일**: ${r.measuredAt}
 - **재현**: \`cd tools && npm ci && npm run fetch-corpus && npm run measure\`

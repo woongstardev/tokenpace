@@ -15,7 +15,7 @@
  */
 
 import { readFile, writeFile } from 'node:fs/promises';
-import { citationBlock, citationBlockEn } from './cite.mjs';
+import { citationBlock, citationBlockEn, LANGUAGE_MARK, resolveLanguagePointer } from './cite.mjs';
 import path from 'node:path';
 
 import { REPO_ROOT, TOKENIZERS, LANGUAGES } from './corpus-config.mjs';
@@ -90,7 +90,10 @@ async function main() {
   await writeFile(path.join(REPO_ROOT, 'data', 'reading-pace.json'), JSON.stringify(out, null, 2) + '\n');
   console.log('Wrote data/reading-pace.json');
 
-  await writeFile(path.join(REPO_ROOT, 'docs', 'reading-speed.md'), render(out, sources, density));
+  await writeFile(
+    path.join(REPO_ROOT, 'docs', 'reading-speed.md'),
+    resolveLanguagePointer(render(out, sources, density), { heading: '# Reading speed, in tok/s', ko: true })
+  );
   console.log('Wrote docs/reading-speed.md');
 
   for (const lang of LANGUAGES) {
@@ -238,6 +241,8 @@ function render(out, sources, density) {
 # 읽기 속도 → tok/s 환산
 
 **한국어** · [English ↓](#reading-speed-in-tokss)
+
+${LANGUAGE_MARK}
 
 - **측정일**: ${out.measuredAt}
 - **재현**: \`cd tools && npm run derive\`
