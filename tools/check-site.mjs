@@ -322,6 +322,15 @@ async function checkDeployManifest() {
   if ('main' in config) {
     fail(check, 'wrangler.jsonc declares a Worker script; this site serves static assets only (BRIEF §5)');
   }
+  // workers_dev must stay off. Turning it on without a registered account-level
+  // workers.dev subdomain does not fail loudly: `wrangler deploy` uploads every
+  // asset, then aborts on the workers.dev step *before* binding the custom
+  // domain, leaving a Worker that exists and answers on no address at all. The
+  // error reads like a permissions problem and is not one. It cost one broken
+  // deploy on 2026-09-02; this line is why it cannot cost a second.
+  if (config.workers_dev !== false) {
+    fail(check, 'wrangler.jsonc must set "workers_dev": false — publishing there needs a permanent account subdomain, and enabling it aborts the deploy before the custom domain is bound');
+  }
   if (config.assets?.directory !== './') {
     fail(check, 'assets.directory must be "./" — .assetsignore is written against the repository root');
   }
