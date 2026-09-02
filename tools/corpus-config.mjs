@@ -61,14 +61,44 @@ export const PARALLEL_SETS = [
  * load a tokenizer.json straight from the Hub. Only ungated repos are listed —
  * a reproduction must not require a Hugging Face account, so the Llama and
  * Gemma tokenizers are read from community mirrors of the same files.
+ *
+ * **Every Hub entry is pinned to a commit.** Without `revision`, the loader
+ * takes whatever is at the branch head, so a repository owner editing
+ * tokenizer.json would change figures published under a fixed measurement
+ * date. The weekly reproduction would go red, correctly, but with nothing to
+ * say about why — a pinned revision turns "the numbers moved" into "this
+ * tokenizer moved, here is the commit we measured". Pins are verified: the
+ * loader 404s on a revision that does not exist rather than falling back.
+ *
+ * Refresh one with:
+ *   curl -s https://huggingface.co/api/models/<repo> | jq -r .sha
+ * and re-run the pipeline. If the figures change, that is the finding.
+ *
+ * ── Which six, and for how long ──────────────────────────────────────────
+ *
+ * The roster is a claim that these are the tokenizers a reader is likely to
+ * be choosing between, and that claim expires. It is not a claim that these
+ * are the best models. An entry earns its place by being a tokenizer many
+ * people are actually served by, and by being reachable without an account.
+ *
+ * Add one when a family in wide use is not represented by any listed entry —
+ * different vocabulary size or different segmentation behaviour on non-Latin
+ * script, not merely a newer checkpoint of a family already here. Replace one
+ * when a listed family ships a successor with a different tokenizer; keep the
+ * old row only while people are still running it. Six is not a target, but
+ * every added row is another column readers have to scan.
+ *
+ * tools/check-freshness.mjs reports how old the measurement is, in the weekly
+ * job. It cannot know that a new model shipped — nothing here can. What it can
+ * do is make the age impossible to miss when someone looks.
  */
 export const TOKENIZERS = [
   { id: 'o200k_base',    label: 'GPT-4o / GPT-5 (o200k_base)',   kind: 'gpt', encoding: 'o200k_base' },
   { id: 'cl100k_base',   label: 'GPT-4 / GPT-3.5 (cl100k_base)', kind: 'gpt', encoding: 'cl100k_base' },
-  { id: 'llama-3.1',     label: 'Llama 3.1',  kind: 'hf', repo: 'unsloth/Meta-Llama-3.1-8B-Instruct' },
-  { id: 'qwen-3',        label: 'Qwen3',      kind: 'hf', repo: 'Qwen/Qwen3-8B' },
-  { id: 'gemma-3',       label: 'Gemma 3',    kind: 'hf', repo: 'unsloth/gemma-3-4b-it' },
-  { id: 'mistral-small', label: 'Mistral Small 3', kind: 'hf', repo: 'unsloth/Mistral-Small-24B-Instruct-2501' },
+  { id: 'llama-3.1',     label: 'Llama 3.1',  kind: 'hf', repo: 'unsloth/Meta-Llama-3.1-8B-Instruct', revision: 'a2856192dd7c25b842431f39c179a6c2c2f627d1' },
+  { id: 'qwen-3',        label: 'Qwen3',      kind: 'hf', repo: 'Qwen/Qwen3-8B', revision: 'b968826d9c46dd6066d109eabc6255188de91218' },
+  { id: 'gemma-3',       label: 'Gemma 3',    kind: 'hf', repo: 'unsloth/gemma-3-4b-it', revision: 'bf46152c47f5dd20b896357cb51abc4c03b8ee8c' },
+  { id: 'mistral-small', label: 'Mistral Small 3', kind: 'hf', repo: 'unsloth/Mistral-Small-24B-Instruct-2501', revision: '2eddef095b2d91c22c59cc3ede00ec595e530d16' },
 ];
 
 /** Built-in demo texts, in the order the site offers them. The first is the

@@ -26,6 +26,11 @@ import { REPO_ROOT, CACHE_DIR, SAMPLES_DIR, PARALLEL_SETS, TOKENIZERS, LANGUAGES
 
 const ISO_DATE = process.env.TOKENPACE_MEASURED_AT || new Date().toISOString().slice(0, 10);
 
+/** The vendored tiktoken port's version, read rather than restated. */
+const VENDOR_VERSION = JSON.parse(
+  await readFile(path.join(REPO_ROOT, 'assets', 'vendor', 'gpt-tokenizer', 'VENDOR.json'), 'utf8')
+).version;
+
 /* ------------------------------------------------------------------ loaders */
 
 async function loadTokenizer(spec) {
@@ -34,7 +39,8 @@ async function loadTokenizer(spec) {
     return { encode: (text) => mod.encode(text) };
   }
   const { AutoTokenizer } = await import('@huggingface/transformers');
-  const tk = await AutoTokenizer.from_pretrained(spec.repo);
+  if (!spec.revision) throw new Error(`${spec.id} has no pinned revision; see tools/corpus-config.mjs`);
+  const tk = await AutoTokenizer.from_pretrained(spec.repo, { revision: spec.revision });
   return { encode: (text) => tk.encode(text, { add_special_tokens: false }) };
 }
 
@@ -133,7 +139,15 @@ async function main() {
     perLang.en.tokensPerWord = perLang.en.tokens / perLang.en.words;
     perLang.en.tokenRatioVsEnglish = 1;
 
-    results.tokenizers[spec.id] = { label: spec.label, source: spec.repo || `tiktoken:${spec.encoding}`, languages: perLang };
+    results.tokenizers[spec.id] = {
+      label: spec.label,
+      source: spec.repo || `tiktoken:${spec.encoding}`,
+      // What exactly was measured. For Hub entries this is the commit; for the
+      // tiktoken ports it is the vendored package version, pinned by
+      // assets/vendor/gpt-tokenizer/VENDOR.json and checked by check-site.mjs.
+      pinnedAt: spec.revision || `gpt-tokenizer@${VENDOR_VERSION}`,
+      languages: perLang,
+    };
     console.log(
       LANGUAGES.map((l) => `${l.id} ${perLang[l.id].charsPerToken.toFixed(2)}`).join('  ')
     );

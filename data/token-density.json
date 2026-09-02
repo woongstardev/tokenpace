@@ -4,6 +4,7 @@
     "o200k_base": {
       "label": "GPT-4o / GPT-5 (o200k_base)",
       "source": "tiktoken:o200k_base",
+      "pinnedAt": "gpt-tokenizer@4.0.0",
       "languages": {
         "en": {
           "chars": 965710,
@@ -45,6 +46,7 @@
     "cl100k_base": {
       "label": "GPT-4 / GPT-3.5 (cl100k_base)",
       "source": "tiktoken:cl100k_base",
+      "pinnedAt": "gpt-tokenizer@4.0.0",
       "languages": {
         "en": {
           "chars": 965710,
@@ -86,6 +88,7 @@
     "llama-3.1": {
       "label": "Llama 3.1",
       "source": "unsloth/Meta-Llama-3.1-8B-Instruct",
+      "pinnedAt": "a2856192dd7c25b842431f39c179a6c2c2f627d1",
       "languages": {
         "en": {
           "chars": 965710,
@@ -127,6 +130,7 @@
     "qwen-3": {
       "label": "Qwen3",
       "source": "Qwen/Qwen3-8B",
+      "pinnedAt": "b968826d9c46dd6066d109eabc6255188de91218",
       "languages": {
         "en": {
           "chars": 965710,
@@ -168,6 +172,7 @@
     "gemma-3": {
       "label": "Gemma 3",
       "source": "unsloth/gemma-3-4b-it",
+      "pinnedAt": "bf46152c47f5dd20b896357cb51abc4c03b8ee8c",
       "languages": {
         "en": {
           "chars": 965710,
@@ -209,6 +214,7 @@
     "mistral-small": {
       "label": "Mistral Small 3",
       "source": "unsloth/Mistral-Small-24B-Instruct-2501",
+      "pinnedAt": "2eddef095b2d91c22c59cc3ede00ec595e530d16",
       "languages": {
         "en": {
           "chars": 965710,

@@ -166,6 +166,15 @@ result against what is in the repository. A single changed digit fails the
 build, because at that point the numbers in `docs/` are no longer the numbers
 the scripts produce.
 
+The same run also asks a question reproduction cannot: whether the table is
+still *current*. Every Hub tokenizer is pinned to a commit, and
+`tools/check-freshness.mjs` compares the tokenizer files at that pin against
+the ones at the branch head — so an upstream edit is reported with the file
+that moved, instead of surfacing later as an unexplained diff. It also refuses
+to let the measurement quietly age: past 180 days it says so, past a year it
+fails. What it cannot detect is a new model family shipping. Nothing can; that
+one is a person's job, and the failing build is how the person gets asked.
+
 That job is the one claim this project cannot afford to have untested, so it
 has been run end-to-end on demand rather than waited for:
 [run 33638579970](https://github.com/woongstardev/tokenpace/actions/runs/33638579970)

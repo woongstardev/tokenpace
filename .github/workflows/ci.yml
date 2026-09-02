@@ -5,9 +5,16 @@ on:
     branches: [main]
   pull_request:
   schedule:
-    # Weekly: re-derive every published figure from scratch. Catches upstream
-    # corpora or tokenizers changing under us, which would otherwise turn the
-    # committed numbers into unverifiable claims without anyone noticing.
+    # Weekly: re-derive every published figure from scratch, and ask whether
+    # the published table is still current. Catches upstream corpora or
+    # tokenizers changing under us, which would otherwise turn the committed
+    # numbers into unverifiable claims without anyone noticing.
+    #
+    # ⚠️ GitHub disables scheduled workflows after 60 days without repository
+    # activity, and a quiet repository is exactly the state in which this job
+    # matters most. It emails the owner before doing so; that email is not
+    # noise, it is this alarm being switched off. Re-enable it, or run the
+    # workflow by hand, which also resets the clock.
     - cron: '17 4 * * 1'
   workflow_dispatch:
 
@@ -91,3 +98,11 @@ jobs:
             exit 1
           fi
           echo "Committed figures match a fresh run."
+
+      # Reproducible is not the same as current. A table that regenerates
+      # perfectly can still describe tokenizers nobody runs any more, and every
+      # other check here would stay green through that. Runs even when the
+      # reproduction failed: the two say different things and both are wanted.
+      - name: Is the published table still current?
+        if: always()
+        run: node tools/check-freshness.mjs

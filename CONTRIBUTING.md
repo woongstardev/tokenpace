@@ -47,6 +47,37 @@ The page says which of precomputed / exact / approximate produced what you are
 looking at. Silently degrading fidelity is how a measurement tool becomes a
 vibes tool.
 
+**6. Every measured input is pinned, and something notices when it moves.**
+Corpus archives are pinned by sha256 in `corpus/CHECKSUMS.json`. Hub tokenizers
+are pinned to a commit in `tools/corpus-config.mjs` — without that, the loader
+takes the branch head and a figure published under a fixed date can change
+under it. `tools/check-freshness.mjs` runs weekly and compares the tokenizer
+files at the pin against the ones at the head, so an upstream edit is reported
+with the file that moved rather than showing up as an unexplained diff.
+
+## Adding, replacing or removing a tokenizer
+
+The roster of six is a claim that these are what a reader is choosing between,
+and that claim expires. It is not a claim that they are the best models.
+
+- **Add** one when a family in wide use is not represented — a different
+  vocabulary size, or different segmentation on non-Latin script. A newer
+  checkpoint of a family already listed is not a reason; the tokenizer is
+  usually the same file.
+- **Replace** one when a listed family ships a successor with a genuinely
+  different tokenizer. Keep the old row only while people are still running it.
+- The repository must be **ungated**. A reproduction that needs a Hugging Face
+  account is not a reproduction, which is why Llama and Gemma are read from
+  community mirrors of the same files.
+- Pin the commit: `curl -s https://huggingface.co/api/models/<repo> | jq -r .sha`,
+  then `cd tools && npm run all`. If the published figures move, that is the
+  finding — say so in the pull request rather than burying it in a regenerated
+  table.
+
+Nothing in CI can tell you that a new model family shipped. What CI does is
+refuse to let the age of the measurement go unnoticed: past 180 days the weekly
+run says so, and past a year it fails, which is a request for a person to look.
+
 ## What is most useful
 
 **A sourced reading baseline.** This is the top of the list, and it has its own
