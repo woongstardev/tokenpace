@@ -303,5 +303,83 @@
         "mistral-small": 2.321
       }
     }
+  },
+  "provenance": {
+    "en": {
+      "o200k_base": {
+        "corpus": 4.645,
+        "native": 4.771,
+        "nativeChars": 2276,
+        "ratio": 1.0271
+      },
+      "cl100k_base": {
+        "corpus": 4.54,
+        "native": 4.782,
+        "nativeChars": 2276,
+        "ratio": 1.0533
+      },
+      "llama-3.1": {
+        "corpus": 4.54,
+        "native": 4.782,
+        "nativeChars": 2276,
+        "ratio": 1.0532
+      },
+      "qwen-3": {
+        "corpus": 4.505,
+        "native": 4.762,
+        "nativeChars": 2276,
+        "ratio": 1.0569
+      },
+      "gemma-3": {
+        "corpus": 4.464,
+        "native": 4.752,
+        "nativeChars": 2276,
+        "ratio": 1.0644
+      },
+      "mistral-small": {
+        "corpus": 4.48,
+        "native": 4.712,
+        "nativeChars": 2276,
+        "ratio": 1.0517
+      }
+    },
+    "ko": {
+      "o200k_base": {
+        "corpus": 1.702,
+        "native": 1.803,
+        "nativeChars": 1242,
+        "ratio": 1.0591
+      },
+      "cl100k_base": {
+        "corpus": 1.022,
+        "native": 1.177,
+        "nativeChars": 1242,
+        "ratio": 1.1516
+      },
+      "llama-3.1": {
+        "corpus": 1.665,
+        "native": 1.715,
+        "nativeChars": 1242,
+        "ratio": 1.0301
+      },
+      "qwen-3": {
+        "corpus": 1.528,
+        "native": 1.56,
+        "nativeChars": 1242,
+        "ratio": 1.0214
+      },
+      "gemma-3": {
+        "corpus": 1.857,
+        "native": 1.968,
+        "nativeChars": 1242,
+        "ratio": 1.0599
+      },
+      "mistral-small": {
+        "corpus": 1.942,
+        "native": 1.978,
+        "nativeChars": 1242,
+        "ratio": 1.0185
+      }
+    }
   }
 }

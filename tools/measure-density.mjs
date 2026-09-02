@@ -101,7 +101,7 @@ async function main() {
 
   // English side is shared across the three pairs but they are different
   // sentence sets, so each pair carries its own English baseline.
-  const results = { measuredAt: ISO_DATE, tokenizers: {}, registers: {} };
+  const results = { measuredAt: ISO_DATE, tokenizers: {}, registers: {}, provenance: {} };
 
   for (const spec of TOKENIZERS) {
     process.stdout.write(`  ${spec.label.padEnd(34)}`);
@@ -146,6 +146,30 @@ async function main() {
         results.registers[register][lang][spec.id] = Number(m.charsPerToken.toFixed(3));
       }
     }
+
+    // How much of the published figure is an artefact of measuring translated
+    // speech? TED2020's non-English side is translation; corpus/samples/ was
+    // written directly in each language. Pooling characters and tokens across
+    // the registers rather than averaging their ratios keeps the longer texts
+    // weighted as they should be.
+    for (const lang of ['en', 'ko']) {
+      const pooled = { chars: 0, tokens: 0 };
+      for (const [, texts] of registers) {
+        if (!texts[lang]) continue;
+        const m = measureLines(tk, texts[lang].split('\n'));
+        pooled.chars += m.chars;
+        pooled.tokens += m.tokens;
+      }
+      const native = pooled.chars / pooled.tokens;
+      const corpus = perLang[lang].charsPerToken;
+      results.provenance[lang] ??= {};
+      results.provenance[lang][spec.id] = {
+        corpus: Number(corpus.toFixed(3)),
+        native: Number(native.toFixed(3)),
+        nativeChars: pooled.chars,
+        ratio: Number((native / corpus).toFixed(4)),
+      };
+    }
   }
 
   await mkdir(path.join(REPO_ROOT, 'data'), { recursive: true });
@@ -163,6 +187,38 @@ async function main() {
 
 function renderMarkdown(r) {
   const langs = LANGUAGES;
+  const pct = (x) => `${x >= 1 ? '+' : ''}${((x - 1) * 100).toFixed(1)}%`;
+  const spread = (values) => {
+    const lo = Math.min(...values);
+    const hi = Math.max(...values);
+    return `${pct(lo)} ~ ${pct(hi)}`;
+  };
+
+  const prov = r.provenance;
+  const provIds = TOKENIZERS.map((t) => t.id);
+  const PROVENANCE_TABLE = [
+    '| 언어 | TED2020 (번역·구어) | samples (직접 쓴 문어) | 차이 | 토크나이저 6종 범위 |',
+    '|---|---:|---:|---:|---:|',
+    ...['en', 'ko'].map((lang) => {
+      const p = prov[lang].o200k_base;
+      const all = provIds.map((id) => prov[lang][id].ratio);
+      const label = LANGUAGES.find((l) => l.id === lang).label;
+      return `| ${label} | ${p.corpus.toFixed(2)} | ${p.native.toFixed(2)} | ${pct(p.ratio)} | ${spread(all)} |`;
+    }),
+  ].join('\n');
+
+  const PROVENANCE_EN_SPREAD = spread(provIds.map((id) => prov.en[id].ratio));
+  const excess = provIds.map((id) => (prov.ko[id].ratio - prov.en[id].ratio) * 100);
+  const signed = (x) => `${x >= 0 ? '+' : ''}${x.toFixed(1)}`;
+  const PROVENANCE_KO_EXCESS = `${signed(Math.min(...excess))} ~ ${signed(Math.max(...excess))} 포인트`;
+  const PROVENANCE_KO_PCT = pct(prov.ko.o200k_base.ratio);
+  const PROVENANCE_KO_CHARS = prov.ko.o200k_base.nativeChars.toLocaleString('en-US');
+  const PROVENANCE_EN_CHARS = prov.en.o200k_base.nativeChars.toLocaleString('en-US');
+
+  const koRegisters = Object.values(r.registers).map((byLang) => byLang.ko?.o200k_base).filter(Boolean);
+  const REGISTER_KO_PCT = pct(Math.max(...koRegisters) / Math.min(...koRegisters));
+  const koTokenizers = provIds.map((id) => r.tokenizers[id].languages.ko.charsPerToken);
+  const TOKENIZER_KO_PCT = pct(Math.max(...koTokenizers) / Math.min(...koTokenizers));
   const rows = (pick) =>
     TOKENIZERS.map((spec) => {
       const L = r.tokenizers[spec.id].languages;
@@ -217,6 +273,34 @@ TED2020 은 구어체 산문이다. LLM 이 실제로 쏟아내는 설명문·�
 | 문체 | 영어 | 한국어 | 격차 |
 |---|---:|---:|---:|
 ${registerRows}
+
+## 4. 코퍼스를 바꾸면 얼마나 달라지나 — 번역문 대 직접 쓴 글
+
+TED2020 의 비영어 쪽은 **번역문**이고 구어(강연 자막)다. \`corpus/samples/\` 는 각 언어로
+**직접 쓴** 문어다. 실사용 밀도를 번역 코퍼스로 재는 것이 맞느냐는 물음에는 재서 답한다.
+
+${PROVENANCE_TABLE}
+
+**영어가 대조군이다.** TED2020 의 영어 쪽은 번역이 아니라 원문이다. 그런데도 직접 쓴 영어와
+${PROVENANCE_EN_SPREAD} 벌어진다. 그러니 이 차이의 대부분은 *번역이라서* 생긴 것이 아니라
+**구어 자막 대 문어**라는 문체 차이다. 번역에 돌릴 수 있는 몫은 한국어가 영어보다 **더**
+움직인 만큼뿐이고, 그 초과분은 토크나이저에 따라 ${PROVENANCE_KO_EXCESS}다 — 음수인
+토크나이저에서는 한국어가 영어보다 덜 움직였다는 뜻이므로 번역에 돌릴 몫이 아예 남지 않는다.
+
+**크기의 순서가 결론이다.** 한국어 자/토큰을 흔드는 세 가지를 같은 축에 놓으면
+(o200k_base, 직접 쓴 표본 기준):
+
+| 무엇을 바꾸나 | 자/토큰이 움직이는 폭 |
+|---|---:|
+| 코퍼스 (번역 구어 → 직접 쓴 문어) | ${PROVENANCE_KO_PCT} |
+| 문체 (대화체 → 기술문서) | ${REGISTER_KO_PCT} |
+| 토크나이저 (cl100k_base → Mistral Small 3) | ${TOKENIZER_KO_PCT} |
+
+⇒ 코퍼스 선택은 셋 중 **가장 작은** 변수다. 나머지 둘은 이미 화면에서 사용자가 직접 고른다.
+
+⚠️ **한계**: 직접 쓴 표본은 한국어 ${PROVENANCE_KO_CHARS}자 · 영어 ${PROVENANCE_EN_CHARS}자로
+TED2020 표본(언어쌍당 3,000 문장)보다 두 자릿수 작다. 위 수치는 방향과 자릿수를 보기 위한 것이지
+세 자리 유효숫자로 쓸 값이 아니다. 더 큰 모국어 작성 코퍼스가 있으면 이 절은 다시 재야 한다.
 
 ---
 

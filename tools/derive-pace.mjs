@@ -119,6 +119,21 @@ function render(out, sources, density) {
     x300: Math.round(300 / Math.min(...allValues)),
   };
 
+  // The published density comes from translated spoken subtitles. Re-deriving
+  // the baseline from text written directly in each language says whether the
+  // conclusion depends on that choice. docs/token-density.md §4 measures the
+  // density side; this measures what it does to the number people quote.
+  const CORPUS_SENSITIVITY = availableLangs
+    .filter((l) => density.provenance?.[l.id]?.o200k_base && out.languages[l.id].rateUnit && out.languages[l.id].rateUnit.startsWith('chars'))
+    .map((l) => {
+      const p = density.provenance[l.id].o200k_base;
+      const rate = out.languages[l.id].rate;
+      const published = rate / p.corpus / 60;
+      const native = rate / p.native / 60;
+      return `- **${l.label}** ${published.toFixed(2)} → **${native.toFixed(2)} tok/s** (자/토큰 ${p.corpus.toFixed(2)} → ${p.native.toFixed(2)})`;
+    })
+    .join('\n');
+
   const SENSITIVITY = availableLangs
     .filter((l) => out.languages[l.id].readerSpread)
     .map((l) => {
@@ -203,6 +218,17 @@ ${SENSITIVITY}
 ⇒ **35 tok/s 판정은 어느 끝에서도 안 바뀐다.** 뒤집히는 것은 5 tok/s 레인뿐이고,
 그것이 그 레인이 화면에 있는 이유다. 결론이 걸려 있는 것은 평균값이 아니라 자릿수다 —
 그래서 개인 측정 기능이 인구 평균보다 위에 있다.
+
+### 다른 코퍼스로 재도 그런가 (민감도 2)
+
+밀도는 번역된 강연 자막(TED2020)에서 나왔다. 각 언어로 직접 쓴 문어
+([\`corpus/samples/\`](../corpus/README.md))로 다시 환산하면:
+
+${CORPUS_SENSITIVITY}
+
+⇒ 자릿수가 안 움직인다. 코퍼스가 결론을 좌우하지 않는다는 뜻이고, 왜 그런지는
+[\`docs/token-density.md\`](token-density.md) §4 에 있다 — 그 차이의 대부분이 번역이 아니라
+구어·문어 차이이기 때문이다. (영어는 단어 단위로 환산하므로 이 표에서 빠진다.)
 
 ⚠️ 단, 이것은 **읽는 속도**지 **훑는 속도**가 아니다. 코드·표·긴 목록처럼 눈으로 건너뛰며
 읽는 출력에서는 사람의 유효 처리 속도가 훨씬 높아지고, 그때는 tok/s 가 다시 체감에 들어온다.
