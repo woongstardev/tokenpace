@@ -1,0 +1,44 @@
+{
+  "$comment": [
+    "TTFT (time to first token) — what this project knows about it, which is",
+    "less than it knows about everything else it publishes.",
+    "",
+    "Same rule as data/reading-speed-sources.json: no number ships without a",
+    "citable source or a script that produced it. TTFT has neither here. This",
+    "file exists so that absence is written down rather than hidden behind a",
+    "slider that happens to start somewhere.",
+    "",
+    "Read with docs/reading-speed.md, which concludes that past roughly",
+    "10 tok/s the remaining perceived wait is TTFT and answer length. That",
+    "conclusion does not need a typical TTFT to hold — it needs the user to",
+    "put their own in. Which is what the slider is for."
+  ],
+  "representativeValue": {
+    "available": false,
+    "reason": "TTFT is not a property of a model, or of a language. It is a property of one deployment: hardware, quantisation, KV-cache state, prompt length, batch occupancy, queue depth, and the network between you and the machine. Those move it across more than two orders of magnitude — a warm local model answering a short prompt is in the tens of milliseconds, a cold 27B on consumer hardware with a long prompt is tens of seconds. A single published constant would be wrong for almost every reader, and wrong in a direction they could not guess.",
+    "whyNotABenchmarkAggregate": "Public leaderboards do publish median TTFT per model and provider, with a documented method. They were considered and not used. Two problems: the figures move week to week, so a committed constant would rot between measurements and this repository would have no way to notice; and they measure hosted APIs at a short fixed prompt length, which is the case where TTFT matters least. Citing a number we cannot re-derive would break the one rule the rest of the repository keeps."
+  },
+  "sliderDefault": {
+    "seconds": 1,
+    "status": "setting, not measurement",
+    "why": "The slider has to start somewhere, and starting at zero would hide the variable the page exists to show. One second is a round number chosen to be legible as a choice. It was deliberately moved off the 0.8 it shipped with on 2026-09-02: 0.8 carries a decimal place, and a decimal place reads as a measurement. Nothing measured it. The page says so next to the control."
+  },
+  "whatWouldCount": {
+    "shape": "Not one number — a small table of named configurations, each reproducible by the person who reported it.",
+    "requires": [
+      "Named hardware (GPU or accelerator, and the host), named model and quantisation, named runtime and version",
+      "Prompt length in tokens, since prefill is roughly linear in it, and whether the KV cache was cold or warm",
+      "Several runs with a median and a spread, not a single stopwatch reading",
+      "A command anyone with the same hardware can run to get the same figure"
+    ],
+    "plannedAs": "docs/BRIEF.md §3 lists hardware presets as a v2 candidate, as committed JSON and no API. That is the shape this would take: data/ttft-hardware.json, one row per configuration, surfaced as presets on the slider."
+  },
+  "attempted": [
+    {
+      "date": "2026-09-03",
+      "what": "Measuring TTFT on this project's own hardware — an RTX 3090 running a 27B Q4 model under Ollama, which is exactly the 'local LLM' case the product's conclusion is aimed at.",
+      "outcome": "Not run. The GPU was fully occupied by unrelated work at the time (24 GB of 24 GB resident, 100% utilisation). Measuring prefill latency on a saturated device would have produced a number about the queue rather than about the model, and would have disturbed the work already running.",
+      "next": "Run it when the device is idle. This is the single most useful thing that could replace this file's absences with figures."
+    }
+  ]
+}

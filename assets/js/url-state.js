@@ -14,7 +14,10 @@ export const DEFAULTS = {
   sample: 'explainer',
   tokenizer: 'o200k_base',
   speeds: [5, 10, 35],
-  ttft: 0.8,
+  // A setting, not a measurement. Nothing here has measured a representative
+  // TTFT and one number could not be representative anyway — see
+  // data/ttft-sources.json, which check-site.mjs holds this literal to.
+  ttft: 1,
   reading: null, // null = use the sourced default for the language
   theme: 'auto',
 };

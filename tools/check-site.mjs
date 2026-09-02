@@ -430,7 +430,55 @@ async function checkDeployManifest() {
   if (!failures.some((f) => f.startsWith(check))) ok(check);
 }
 
-/* ────────────────────────────────────────────────── 9. the citation file */
+/* ──────────────────────────────────── 9. the one number nobody measured */
+
+/**
+ * The TTFT slider needs a starting position, and no source or script produced
+ * one — TTFT is a property of a deployment, not of a model, so no constant
+ * could be right for most readers. That is a defensible gap. What is not
+ * defensible is the gap being invisible, which is what it was: the value sat
+ * in url-state.js as a bare literal, indistinguishable from the measured
+ * constants beside it.
+ *
+ * So the number is allowed to exist on one condition — that it stays tied to
+ * the file admitting it is a setting, and that the page keeps saying so.
+ */
+async function checkUnmeasuredDefault() {
+  const check = 'the unmeasured default admits it';
+  const record = JSON.parse(await readFile(path.join(ROOT, 'data', 'ttft-sources.json'), 'utf8'));
+
+  const declared = record.sliderDefault?.seconds;
+  if (typeof declared !== 'number') return fail(check, 'data/ttft-sources.json declares no sliderDefault.seconds');
+  if (record.representativeValue?.available !== false) {
+    fail(check, 'data/ttft-sources.json now claims a representative TTFT; it needs a source and a caveat list like the reading baselines, and this check needs rewriting');
+  }
+  if (!record.sliderDefault?.why) fail(check, 'the slider default gives no reason for its value');
+
+  const state = await readFile(path.join(ROOT, 'assets', 'js', 'url-state.js'), 'utf8');
+  const literal = state.match(/^\s*ttft:\s*([0-9.]+)\s*,/m)?.[1];
+  if (literal === undefined) return fail(check, 'could not find the ttft default in url-state.js');
+  if (Number(literal) !== declared) {
+    fail(check, `url-state.js defaults ttft to ${literal}, data/ttft-sources.json says ${declared}`);
+  }
+
+  // The page has to carry the admission, in both languages, or the record is
+  // just a file nobody visiting the site will ever open.
+  const i18n = await readFile(path.join(ROOT, 'assets', 'js', 'i18n.js'), 'utf8');
+  const admissions = [...i18n.matchAll(/^\s*hintTtftUnmeasured:/gm)].length;
+  if (admissions < 2) fail(check, `hintTtftUnmeasured is defined ${admissions} time(s); every language needs it`);
+
+  const html = await readFile(path.join(ROOT, 'index.html'), 'utf8');
+  if (!html.includes('data-i18n="hintTtftUnmeasured"')) {
+    fail(check, 'index.html no longer shows the note saying the TTFT default is not measured');
+  }
+  if (!html.includes('href="data/ttft-sources.json"')) {
+    fail(check, 'index.html no longer links to data/ttft-sources.json, so the reasoning is unreachable from the page');
+  }
+
+  if (!failures.some((f) => f.startsWith(check))) ok(check);
+}
+
+/* ───────────────────────────────────────────────── 10. the citation file */
 
 /**
  * Being cited is this project's stated goal, so the citation metadata is a
@@ -501,6 +549,7 @@ await checkLinks();
 await checkSources();
 await checkLocalAssets();
 await checkDeployManifest();
+await checkUnmeasuredDefault();
 await checkCitation();
 
 if (failures.length) {

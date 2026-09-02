@@ -34,7 +34,7 @@ const DEBUG_PORT_BASE = 9451;
 const SHOTS = [
   {
     file: 'site-light.png',
-    url: '/?tps=5,10,35&ttft=0.8&lang=ko&tok=o200k_base&theme=light',
+    url: '/?tps=5,10,35&lang=ko&tok=o200k_base&theme=light',
     width: 1280,
     height: 1000,
     scale: 1,
@@ -43,7 +43,7 @@ const SHOTS = [
   },
   {
     file: 'site-dark-en.png',
-    url: '/?tps=5,10,35&ttft=0.8&lang=en&tok=o200k_base&theme=dark',
+    url: '/?tps=5,10,35&lang=en&tok=o200k_base&theme=dark',
     width: 1280,
     height: 1000,
     scale: 1,
@@ -52,7 +52,7 @@ const SHOTS = [
   },
   {
     file: 'site-mobile.png',
-    url: '/?tps=5,35&ttft=0.8&lang=ko&tok=o200k_base&theme=light',
+    url: '/?tps=5,35&lang=ko&tok=o200k_base&theme=light',
     width: 390,
     height: 844,
     mobile: true,
@@ -61,7 +61,7 @@ const SHOTS = [
   },
   {
     file: 'site-reduced-motion.png',
-    url: '/?tps=5,10,35&ttft=0.8&lang=ko&tok=o200k_base&theme=light',
+    url: '/?tps=5,10,35&lang=ko&tok=o200k_base&theme=light',
     width: 1280,
     height: 1200,
     scale: 1,

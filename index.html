@@ -86,10 +86,14 @@
       <div class="field">
         <label for="ttft-input" data-i18n="labelTtft">TTFT — 첫 토큰까지 대기</label>
         <div class="slider-row">
-          <input type="range" id="ttft-input" min="0" max="10" step="0.1" value="0.8">
-          <output for="ttft-input" id="ttft-output" class="numout">0.8s</output>
+          <input type="range" id="ttft-input" min="0" max="10" step="0.1" value="1.0">
+          <output for="ttft-input" id="ttft-output" class="numout">1.0s</output>
         </div>
         <p class="hint" data-i18n="hintTtft">모델이 첫 글자를 내놓기 전까지의 침묵. 디코딩 속도와 별개입니다.</p>
+        <p class="hint">
+          <span data-i18n="hintTtftUnmeasured">이 기본값은 측정값이 아닙니다 — 쓰는 환경에서 직접 재야 하는 값입니다.</span>
+          <a href="data/ttft-sources.json" data-i18n="hintTtftWhy">왜 대푯값이 없나</a>
+        </p>
       </div>
 
       <div class="field">

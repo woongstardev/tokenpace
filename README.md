@@ -45,7 +45,13 @@ implicitly English-only. Ours ships six tokenizers × four languages, measured o
 
 **2. TTFT is included.** The wait before the first token is most of what "slow"
 feels like once decoding is fast, and the tools that mention it mostly exclude
-it on purpose.
+it on purpose. What this project does *not* do is tell you what a typical TTFT
+is. There is no such number: TTFT belongs to a deployment — hardware,
+quantisation, prompt length, cache state, queue depth — and moves across more
+than two orders of magnitude between them. The slider starts at a round one
+second, the page says on its face that this is a setting rather than a
+measurement, and [`data/ttft-sources.json`](data/ttft-sources.json) records why
+and what would have to be measured to replace it.
 
 **3. There is a baseline.** "Is 35 tok/s fast" has no answer. "Does 35 tok/s
 outrun me" does. Human reading speed converts to roughly **5 tok/s** — close
