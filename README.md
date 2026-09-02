@@ -9,8 +9,11 @@ the other takes a tokenizer, and the answer moves by 2× depending on which one.
 tokenpace measures that conversion — six tokenizers, four languages, 3,000
 sentence pairs each — and then draws the baseline the other visualisers leave
 out: your own reading speed, in tok/s. It lands near 5, in English and, to our
-surprise, in Korean too. **Past roughly 10 tok/s the model already outruns you;
-what you still feel is the wait for the first token, and how long the answer is.**
+surprise, in Korean too. **On prose you actually read, past roughly 10 tok/s the
+model already outruns you; what you still feel is the wait for the first token,
+and how long the answer is.** Output you skim rather than read — code, tables,
+long lists — moves that threshold up by however much faster you skim, and this
+project has not measured that factor.
 
 > Live at **<https://tokenpace.woongstar.com/>** — or run it locally, see [Running it](#running-it).
 >

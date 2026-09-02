@@ -55,6 +55,9 @@ export const STRINGS = {
       `전부 나오는 데 ${total}초 (그중 TTFT ${ttft}초). 같은 글을 읽는 데는 ${reading}초.`,
     verdictTtftNote: (pct) =>
       `이 설정에서는 전체 대기 시간의 <strong>${pct}%</strong> 가 TTFT입니다.`,
+    verdictScope:
+      '이 판정은 <strong>읽는</strong> 글에만 해당합니다. 코드·표·목록처럼 눈으로 훑는 출력에서는 사람 쪽 속도가 올라가고, '
+      + '문턱도 그 배수만큼 같이 올라갑니다 — 그 배수는 여기서 재지 않았습니다.',
     verdictNoReading: '이 언어는 읽기 속도 기준선이 없어 판정을 내지 않습니다.',
 
     evidenceHeading: '이 숫자는 어디서 왔나',
@@ -145,6 +148,9 @@ export const STRINGS = {
     verdictTiming: (total, ttft, reading) =>
       `${total}s to finish (${ttft}s of that is TTFT). Reading the same text takes ${reading}s.`,
     verdictTtftNote: (pct) => `At these settings, <strong>${pct}%</strong> of the total wait is TTFT.`,
+    verdictScope:
+      'This verdict covers text you <strong>read</strong>. Output you scan instead — code, tables, lists — you take in faster, '
+      + 'and the threshold rises by the same factor. That factor is not measured here.',
     verdictNoReading: 'No sourced reading baseline for this language, so no verdict is given.',
 
     evidenceHeading: 'Where these numbers come from',

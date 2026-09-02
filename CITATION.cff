@@ -24,7 +24,9 @@ abstract: >-
   parallel sentence pairs per language from TED2020 — and uses it to express
   human reading speed in tok/s. That figure lands near 5 tok/s in both English
   and Korean, which places most current decoding speeds well above it and moves
-  the perceptual question to time-to-first-token and answer length. Every figure
+  the perceptual question to time-to-first-token and answer length — for prose
+  that is read rather than skimmed, a scope the project states rather than
+  assumes. Every figure
   regenerates from the raw corpora with a committed script; a weekly CI job
   re-derives them and fails if the result differs.
 

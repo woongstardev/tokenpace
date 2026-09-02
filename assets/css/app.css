@@ -342,6 +342,7 @@ textarea { resize: vertical; font-size: .9rem; line-height: 1.6; }
 .evidence-line strong { color: var(--text); }
 .evidence-line.muted { color: var(--text-faint); }
 .fidelity--approximate { color: var(--warn); }
+.verdict-scope { margin-block-start: 14px; font-size: .84rem; color: var(--text-muted); border-inline-start: 2px solid var(--border-strong); padding-inline-start: 10px; }
 .caveats { margin-block-start: 12px; font-size: .82rem; color: var(--text-muted); }
 .caveats summary { cursor: pointer; color: var(--text); font-weight: 600; }
 .caveats ul { margin-block: 8px 0; padding-inline-start: 1.2em; display: grid; gap: 6px; }

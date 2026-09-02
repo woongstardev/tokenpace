@@ -475,6 +475,16 @@ function renderVerdict() {
     nodes.push(row);
   }
 
+  // The threshold this page exists to show is a claim about reading, and it
+  // stops holding for output people scan rather than read. That limit used to
+  // live in a collapsed <details> further down, which is not where a limit on
+  // the headline belongs — it goes next to the verdict it limits.
+  if (state.speeds.some((speed) => speed / readingTps >= 1)) {
+    const scope = el('p', 'verdict-scope');
+    scope.innerHTML = s.verdictScope;
+    nodes.push(scope);
+  }
+
   box.replaceChildren(...nodes);
 }
 
