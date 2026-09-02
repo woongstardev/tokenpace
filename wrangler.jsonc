@@ -24,10 +24,18 @@
     { "pattern": "tokenpace.woongstar.com", "custom_domain": true }
   ],
 
-  // Kept on deliberately: it is a free second surface to check against if the
-  // custom domain misbehaves, and the canonical link tells search engines
-  // which of the two is the real one.
-  "workers_dev": true,
+  // Off (2026-09-02). Publishing to workers.dev first requires
+  // registering a permanent account-level subdomain — a separate irreversible
+  // decision that was never approved, and one wrangler v4 cannot even perform.
+  //
+  // Leaving it on is not free when that subdomain does not exist: `wrangler
+  // deploy` uploads every asset, then aborts on the workers.dev step *before*
+  // binding the custom domain. The worker is created and nothing is reachable,
+  // which reads like a permissions failure and is not one. Measured 2026-09-02.
+  //
+  // index.html still declares the canonical origin. That stays correct — a
+  // single surface naming itself as canonical is not a contradiction.
+  "workers_dev": false,
 
   "assets": {
     // The repository root, minus .assetsignore. _headers is read by the
