@@ -2,12 +2,15 @@
 
 **How fast is a tok/s number, really — in your language, against your reading speed?**
 
-Benchmarks report tokens per second. People read characters. Those two units do
-not convert cleanly, and the conversion factor changes by a factor of two
-depending on which tokenizer you ask. tokenpace measures the conversion, then
-lets you watch the result stream past a baseline that is your own.
+Benchmarks report tokens per second. People read characters. Converting one into
+the other takes a tokenizer, and the answer moves by 2× depending on which one.
+tokenpace measures that conversion — six tokenizers, four languages, 3,000
+sentence pairs each — and then draws the baseline the other visualisers leave
+out: your own reading speed, in tok/s. It lands near 5, in English and, to our
+surprise, in Korean too. **Past roughly 10 tok/s the model already outruns you;
+what you still feel is the wait for the first token, and how long the answer is.**
 
-> Status: **pre-release.** Not deployed yet. Runs locally — see [Running it](#running-it).
+> Live at **<https://tokenpace.woongstar.com/>** — or run it locally, see [Running it](#running-it).
 
 ![The page mid-stream: a reading-speed lane and three tok/s lanes racing through the same Korean paragraph](docs/screenshots/site-light.png)
 

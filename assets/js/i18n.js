@@ -174,7 +174,7 @@ export const STRINGS = {
     unitWordsPerMin: 'wpm',
     footer: (date) =>
       `Measured ${date} · reproduce the numbers from <a href="docs/token-density.md">token-density.md</a> and ` +
-      `<a href="docs/reading-speed.md">reading-speed.md</a>. Zero external requests, zero tracking.`,
+      `<a href="docs/reading-speed.md">reading-speed.md</a>. This page makes zero external requests and zero tracking calls.`,
     customText: 'Paste your own',
     customPlaceholder: 'Paste text here…',
   },
