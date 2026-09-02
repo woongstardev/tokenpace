@@ -25,8 +25,10 @@
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="사람이 읽는 속도를 tok/s 로 환산해 10·35 tok/s 와 나란히 놓은 막대 그래프.">
 <meta name="twitter:card" content="summary_large_image">
-<!-- The site answers on *.workers.dev as well, so name the canonical origin
-     rather than letting a second URL accumulate its own search results. -->
+<!-- The custom domain is the only public surface: workers_dev is off,
+     because publishing there would need a permanent account-level subdomain
+     that was never registered (see wrangler.jsonc). Naming the canonical
+     origin anyway costs nothing and stays correct if a second one appears. -->
 <link rel="canonical" href="https://tokenpace.woongstar.com/">
 <link rel="stylesheet" href="assets/css/app.css">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext y='26' font-size='26'%3E%E2%8F%B1%3C/text%3E%3C/svg%3E">

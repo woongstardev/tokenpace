@@ -4,3 +4,4 @@ node_modules/
 corpus/cache/
 tools/node_modules/
 .wrangler/
+CLAUDE.md

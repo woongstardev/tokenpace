@@ -251,7 +251,6 @@ const SERVED_TOP_LEVEL = new Set([
 /** Paths that must never reach a public URL, whatever else changes. */
 const MUST_NOT_SHIP = [
   'docs/BRIEF.md',
-  'docs/review-request-20260902.md',
   'docs/screenshots',
   'CLAUDE.md',
   'AGENTS.md',
@@ -378,15 +377,28 @@ async function checkDeployManifest() {
     sources.push(['corpus/README.md', await readFile(corpusReadme, 'utf8')]);
   }
 
+  const reachable = new Set(['index.html']);
   for (const [from, source] of sources) {
     for (const target of linkTargets(source)) {
       const resolved = path.posix.normalize(path.posix.join(path.posix.dirname(from), target));
       if (resolved.startsWith('..')) continue;               // outside the repo, not ours
+      reachable.add(resolved);
       if (!(await exists(path.join(ROOT, resolved)))) continue; // checkLinks reports missing files
       if (!isServed(resolved)) {
         fail(check, `${from} links to ${target}, which .assetsignore keeps out of the deploy — it would 404 in production`);
       }
     }
+  }
+
+  // docs/ holds both the measurement documents, which ship, and the project's
+  // own paperwork, which must not. Nothing distinguishes them by name, so the
+  // rule is reachability: a document the site links to belongs on the site, and
+  // one nothing links to is either internal or dead. Either way it does not
+  // ship silently.
+  for (const doc of await walk(path.join(ROOT, 'docs'))) {
+    const relative = rel(doc);
+    if (!isServed(relative) || reachable.has(relative)) continue;
+    fail(check, `${relative} would be served but nothing links to it; add it to .assetsignore, or link it from the page`);
   }
 
   /* ── the page advertises the origin it deploys to */

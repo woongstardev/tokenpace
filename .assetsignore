@@ -26,14 +26,16 @@
 #
 # Measured against workerd, 2026-09-02.
 
-# ── internal notes: for whoever works on the repository, not for a visitor
+# ── project paperwork: for whoever works on the repository, not for a visitor.
+#    docs/ is the exception that needs watching — the two measurement documents
+#    ship, everything else there must be listed here. check-site.mjs fails on a
+#    served docs/ file that nothing links to, so a new one cannot ride along.
 /AGENTS.md
 /CLAUDE.md
 /CODE_OF_CONDUCT.md
 /CONTRIBUTING.md
 /README.md
 /docs/BRIEF.md
-/docs/review-request-20260902.md
 /docs/screenshots/
 
 # ── the harness: it proves the numbers, it is not one of them
