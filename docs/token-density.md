@@ -2,7 +2,7 @@
 
 # 토큰 밀도 실측 (token density)
 
-- **측정일**: 2026-09-01
+- **측정일**: 2026-09-02
 - **재현**: `cd tools && npm ci && npm run fetch-corpus && npm run measure`
 - **코퍼스**: TED2020 (OPUS), 언어쌍별 3,000 문장쌍을 고정 stride 로 표본 추출.
   아카이브 sha256 은 [`corpus/CHECKSUMS.json`](../corpus/CHECKSUMS.json) 에 고정돼 있다.
@@ -41,7 +41,7 @@ API 청구서에 찍히는 축이다. **크면 비싸다.** 1번 표의 역수�
 ## 3. 문체별 편차 (o200k_base, 자/토큰)
 
 TED2020 은 구어체 산문이다. LLM 이 실제로 쏟아내는 설명문·코드·대화는 밀도가 다르므로,
-같은 뜻으로 직접 작성한 병렬 샘플([`corpus/samples/`](../corpus/samples/), CC0)로 따로 잰다.
+같은 뜻으로 직접 작성한 병렬 샘플([`corpus/samples/`](../corpus/README.md), CC0)로 따로 잰다.
 
 | 문체 | 영어 | 한국어 | 격차 |
 |---|---:|---:|---:|

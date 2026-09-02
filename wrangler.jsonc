@@ -12,8 +12,21 @@
   "name": "tokenpace",
   "compatibility_date": "2026-09-02",
 
-  // *.workers.dev is the surface that needs no domain decision (BRIEF §6
-  // item 3). A custom domain is added as a route later, not by editing this.
+  // The custom domain (BRIEF §6-3, decided 2026-09-02).
+  // `custom_domain: true` makes `wrangler deploy` create the DNS record and
+  // the hostname binding itself, so the domain is not a second manual step in
+  // a dashboard — woongstar.com is already a Cloudflare zone, which is the
+  // only precondition.
+  //
+  // index.html advertises this same origin as its canonical URL and in its og
+  // tags; tools/check-site.mjs fails if the two ever disagree.
+  "routes": [
+    { "pattern": "tokenpace.woongstar.com", "custom_domain": true }
+  ],
+
+  // Kept on deliberately: it is a free second surface to check against if the
+  // custom domain misbehaves, and the canonical link tells search engines
+  // which of the two is the real one.
   "workers_dev": true,
 
   "assets": {

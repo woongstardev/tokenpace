@@ -1,5 +1,5 @@
 // GENERATED — do not edit. Run `npm run build-site` in tools/ after changing tools/measure-density.mjs or data/reading-speed-sources.json.
-export const MEASURED_AT = "2026-09-01";
+export const MEASURED_AT = "2026-09-02";
 
 export const TOKENIZERS = [
   {

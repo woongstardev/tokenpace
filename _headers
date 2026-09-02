@@ -15,6 +15,22 @@
   Cross-Origin-Opener-Policy: same-origin
   Permissions-Policy: accelerometer=(), camera=(), geolocation=(), gyroscope=(), microphone=(), payment=(), usb=()
 
+# The measurement documents and the licences are meant to be read. Served as
+# text/markdown a browser downloads them instead of showing them, which turns
+# the footer's "reproduce the numbers" links into file-save dialogs. text/plain
+# renders inline, and the bytes are identical either way.
+/docs/*
+  Content-Type: text/plain; charset=utf-8
+
+/corpus/README.md
+  Content-Type: text/plain; charset=utf-8
+
+/LICENSE
+  Content-Type: text/plain; charset=utf-8
+
+/LICENSES.md
+  Content-Type: text/plain; charset=utf-8
+
 # The vendored tokenizer is content-addressed by its pinned version and never
 # changes in place, so it can be cached hard.
 /assets/vendor/*

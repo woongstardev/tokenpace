@@ -1,33 +1,53 @@
-# Files that exist for the repository, not for the website.
+# What the deployed site does NOT carry.
 #
 # Wrangler uploads wrangler.jsonc's assets.directory minus these entries, using
-# .gitignore syntax. _headers is consumed by the platform rather than served,
-# so it is not listed.
+# .gitignore syntax. _headers is consumed by the platform rather than served.
 #
-# The deployed site is exactly index.html plus assets/. Everything else here —
-# the measurement harness, the corpus, the tests, the docs — is what makes the
-# numbers checkable, and it is checkable in the repository. Serving it from the
-# site would publish files with no reader and no route into the page.
+# The site carries the page and the evidence the page cites — the two
+# measurement documents, the constants they derive from, the corpus manifest,
+# and the CC0 samples. That set is not decoration: the footer links to it, and
+# a reproducibility claim whose links 404 is worse than no claim. The licences
+# travel with it because the site is what distributes those measurements.
 #
-# ⚠️ Every rule is anchored with a leading slash, and tools/check-site.mjs
-# rejects one that is not. An unanchored .gitignore rule matches at every
-# depth: `data/` also hides `assets/data/`, where the page reads its density
-# figures. Wrangler reports nothing for that — the file is simply absent and
-# the page 404s at runtime. Measured against workerd, 2026-09-02.
+# What stays behind is this repository's internal notes, the harness, and the
+# tests. Those make the numbers checkable in the repository, which is where
+# checking them belongs.
 #
-# check-site.mjs also fails if a top-level entry appears that is neither part
-# of the site nor listed here, so this cannot quietly fall behind.
+# ⚠️ Three rules this file must keep, all enforced by tools/check-site.mjs:
+#
+#  1. Every rule is anchored with a leading slash. An unanchored .gitignore
+#     rule matches at every depth — `data/` would also hide `assets/data/`,
+#     where the page reads its density figures. Wrangler reports nothing for
+#     that; the deploy succeeds and the page 404s at runtime.
+#  2. No globs and no `!` negation. The checker computes the served set exactly
+#     from these rules, and it can only do that while they stay literal.
+#  3. Every top-level entry is either listed here or explicitly allowed to
+#     ship, so a new directory cannot join the upload unnoticed.
+#
+# Measured against workerd, 2026-09-02.
 
-/*.md
-/LICENSE
+# ── internal notes: for whoever works on the repository, not for a visitor
+/AGENTS.md
+/CLAUDE.md
+/CODE_OF_CONDUCT.md
+/CONTRIBUTING.md
+/README.md
+/docs/BRIEF.md
+/docs/review-request-20260902.md
+/docs/screenshots/
+
+# ── the harness: it proves the numbers, it is not one of them
+/tests/
+/tools/
+
+# ── TED2020 archives. CC BY-NC-ND: we pin their checksums, we do not
+#    redistribute them (corpus/README.md §2). Also 85MB.
+/corpus/cache/
+
+# ── repository and deploy plumbing
 /.git/
 /.github/
 /.gitignore
-/.wrangler/
 /.assetsignore
+/.wrangler/
 /wrangler.jsonc
-/corpus/
-/data/
-/docs/
-/tests/
-/tools/

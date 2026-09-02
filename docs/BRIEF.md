@@ -173,9 +173,9 @@ v1 은 "정확 토크나이저는 wasm + vocab 수 MB라 과하다"고 판단했
 | # | 항목 | 상태 |
 |---|---|---|
 | 1 | **GitHub 리포 생성** | ✅ **승인 2026-09-01 — `woongstardev/tokenpace`, private** |
-| 1b | **공개 전환(public)** | ⏳ **미결.** private 승인은 public 승인이 아니다 |
-| 2 | Cloudflare Workers 프로젝트 생성 / 배포 | ⏳ 미결 — 대외 게시 |
-| 3 | 커스텀 도메인·DNS | ⏳ 미결 — 비가역. `*.workers.dev` 까지가 승인 없이 말할 수 있는 선 |
+| 1b | **공개 전환(public)** | ⏳ **미결.** private 승인은 public 승인이 아니고, 배포 승인도 public 승인이 아니다 (§6-1b 주의) |
+| 2 | Cloudflare Workers 프로젝트 생성 / 배포 | ✅ **승인 2026-09-02 — 배포 완료·검증 통과** |
+| 3 | 커스텀 도메인·DNS | ✅ **승인 2026-09-02 — `tokenpace.woongstar.com`** |
 | 4 | **라이선스 확정** | ✅ **승인 2026-09-01 — 권장안 그대로** |
 
 ### 4번 확정 내용 (2026-09-01)
@@ -190,8 +190,24 @@ v1 은 "정확 토크나이저는 wasm + vocab 수 MB라 과하다"고 판단했
 코드는 마찰 없이 포크되게 MIT, 측정값은 출처 표기만 요구하는 CC BY, 테스트 픽스처인
 샘플은 아무도 생각할 필요 없게 CC0. 전문은 [`LICENSES.md`](../LICENSES.md).
 
-⇒ **1b·2·3 승인 전까지 로컬·private 작업은 전부 자유롭다.**
-⚠️ private 리포는 대외 게시가 아니지만 **public 전환은 되돌릴 수 없다** — 별도 결재다.
+### 3번 확정 내용 (2026-09-02)
+
+**`tokenpace.woongstar.com`** — 세션이 올린 `checktokenpace` 안을 유지보수자가 이 이름으로 승인했다.
+
+근거는 하나로 모인다: **이름이 두 개가 되면 안 된다.** 리포도 사이트 제목도 OG 카드도 `tokenpace`
+인데 URL 만 다르면, 목표인 "인용"에서 그 비용을 인용하는 쪽이 낸다. DNS 에는 대소문자가 없어
+`checktokenpace` 는 단어 경계 없이 읽히기도 한다. 나중에 독립 도메인으로 옮겨도 이름은 안 바뀐다.
+
+woongstar.com 은 이미 Cloudflare 존이므로(NS 확인 2026-09-02) `wrangler.jsonc` 의
+`custom_domain: true` 가 DNS 레코드와 호스트네임 바인딩을 스스로 만든다 — 대시보드 수작업이 없다.
+페이지의 canonical·og:url·og:image 가 같은 오리진을 가리키고, **둘이 어긋나면 불변식이 실패한다.**
+
+⇒ **1b 승인 전까지 리포는 private 이다.** 배포 승인(2)은 사이트를 띄우는 것이지 리포를 여는 것이 아니다.
+⚠️ **public 전환은 되돌릴 수 없다** — 별도 결재로 남아 있다.
+
+⚠️ **그래서 지금 사이트는 소스로 가는 링크가 없다.** 리포가 private 인 동안 GitHub 링크를 걸면
+방문자에게 404 다. 대신 사이트가 **근거 자체를 직접 서빙한다** — 두 측정 문서·상수 JSON·코퍼스
+매니페스트·CC0 샘플·라이선스. 재현 하네스(`tools/`)만 리포에 남는다. 1b 가 나면 그때 소스 링크를 건다.
 
 ## 7. 착수 순서
 
@@ -209,31 +225,36 @@ v1 은 "정확 토크나이저는 wasm + vocab 수 MB라 과하다"고 판단했
    `docs/screenshots/` 에 커밋했고(라이트·다크/영문·모바일 390px·모션 줄이기), README 상단에 걸었다.
    OG 카드(`assets/og.png`)도 전용 페이지 `tools/og-card.html` 에서 생성한다 — §3 "동적 OG 없음, 커밋된 PNG까지" 그대로.
    직접 만져 볼 때는 리포 루트에서 `python3 -m http.server 8000`
-9. ✅ **배포 설정 작성 + workerd 실측 (2026-09-02).** `wrangler.jsonc`(스크립트 없는 정적 자산 전용) ·
-   `.assetsignore`(index.html + `assets/` 만 올라간다) · 불변식 「the deploy ships the site and nothing else」.
-   **배포한 것이 아니라 배포를 한 줄로 만든 것이다** — 2번 결재는 그대로 미결이다(§6).
-10. ⬜ 공개 여부 결재 요청 (§6 — 라이선스 확정 포함)
+9. ✅ **배포 설정 작성 + workerd 실측 (2026-09-02).** `wrangler.jsonc`(스크립트 없는 정적 자산 전용,
+   커스텀 도메인 route) · `.assetsignore`(페이지 + 페이지가 인용하는 근거) · 불변식
+   「the deploy ships the site, and all of it」. 32개 경로를 workerd 로 눌러 확인했다.
+10. ✅ **도메인 확정 + 페이지 메타 (2026-09-02).** `tokenpace.woongstar.com` —
+   canonical·og:url·og:image 절대 URL. 배포 전 손으로 할 일은 이제 **없다**.
+11. ⬜ **배포 대기** — `npx wrangler deploy`. 
+12. ⬜ 공개 전환(public) 결재 — §6-1b, 아직 미결
 
-**배포 시 잊지 말 것** (2번 결재가 나면): `index.html` 의 `og:image` 를 절대 URL 로 박는다
-(현재는 도메인 미결이라 상대 경로 — Facebook 은 절대 URL 을 요구한다). 손으로 할 일은 이것 하나다.
+**배포 시 잊지 말 것**: ~~`og:image` 절대 URL~~ — 2026-09-02 에 박았다(§6-3). **수작업 항목은 0건이다.**
 
 **나머지는 설정으로 옮겼다** (2026-09-02). 배포 명령은 `npx wrangler deploy` 하나다.
 
 | 파일 | 하는 일 |
 |---|---|
 | `wrangler.jsonc` | `main` 이 없다 = 워커 코드 없음(§5). `assets.directory` 는 리포 루트, `*.workers.dev` 까지만 |
-| `.assetsignore` | 올라가는 것은 `index.html` + `assets/` 뿐. 하네스·코퍼스·테스트·문서·`.git` 전부 제외 |
-| `tools/check-site.mjs` 의 불변식 8 | 새 최상위 항목이 조용히 업로드에 끼거나, 무시 규칙이 사이트 파일을 삼키면 실패한다 |
+| `.assetsignore` | 페이지 + **페이지가 인용하는 근거**가 올라간다. 하네스·테스트·`corpus/cache`·`.git` 은 제외 |
+| `tools/check-site.mjs` 의 불변식 8 | 양쪽을 다 문다 — 링크한 것이 배포에서 빠져도, 내부 문서가 공개 URL 로 새도 실패 |
 
 **workerd 로 실측했다** (`wrangler dev`, 2026-09-02). 문서가 아니라 응답 코드로 확인한 것:
 
-- 실려야 할 8개 경로 전부 200 (`assets/vendor/` 의 지연 로드 토크나이저 포함)
-- 실리면 안 될 19개 경로 전부 404 — `docs/BRIEF.md`·`CLAUDE.md`·`tools/`·`corpus/`·**`.git/config`** 포함
+- 실려야 할 16개 경로 전부 200 — 페이지·지연 로드 토크나이저 + **근거 사슬 전체**
+  (두 측정 문서 · `data/*.json` · `corpus/CHECKSUMS.json` · CC0 샘플 · 라이선스)
+- 실리면 안 될 16개 경로 전부 404 — `docs/BRIEF.md`·`docs/review-request`·`CLAUDE.md`·`tools/`·
+  `tests/`·`corpus/cache/`·**`.git/config`** 포함
+- 렌더된 페이지에서 나가는 내부 링크를 실제로 눌러 전부 200 (푸터의 재현 링크 2건 포함)
 - `_headers` 가 실제로 먹는다 — 응답에 `frame-ancestors 'none'`(메타 태그가 못 싣는 것)과
   벤더 전용 `immutable` 캐시가 붙어 나온다. 「`_headers` 가 진짜 정책」이라는 그 파일의 주장이 검증됐다
 - 헤드리스 크롬으로 그 파일 집합만 띄워 콘솔 에러 0 · 실패 요청 0
 
-⚠️ **밟은 함정 2개** (둘 다 조용히 실패한다):
+⚠️ **밟은 함정 3개** (전부 조용히 실패한다):
 
 1. **무시 규칙은 앵커가 없으면 모든 깊이에서 걸린다.** `data/` 라고 쓰면 `assets/data/` 도 같이 사라져
    페이지가 밀도 수치를 못 읽는다. wrangler 는 아무 경고도 안 한다 — 배포는 성공하고 런타임에 404 가 난다.
@@ -241,6 +262,13 @@ v1 은 "정확 토크나이저는 wasm + vocab 수 MB라 과하다"고 판단했
 2. **`wrangler dev` 는 리포 루트를 감시 대상으로 잡는데 `.wrangler/` 상태 DB 가 그 안에서 계속 바뀐다**
    → 무한 리로드. 로컬 미리보기는 §5 대로 `python3 -m http.server 8000` 이 정답이고,
    굳이 워커 런타임으로 봐야 하면 `--persist-to` 로 상태를 리포 밖에 둔다.
+3. **푸터의 재현 링크가 배포에서 빠져 있었다.** 첫 `.assetsignore` 는 `/docs/` 를 통째로 뺐는데,
+   푸터가 거는 `docs/token-density.md`·`docs/reading-speed.md` 가 거기 있다. **그 링크는
+   index.html 이 아니라 `assets/js/i18n.js` 의 문자열 안에 있어서** 「페이지가 참조하는 자산」
+   검사가 닿지 않았다. 재현 가능성이 이 제품의 주장인데 그 링크가 404 였다는 뜻이다.
+   ⇒ 사이트가 **근거를 직접 서빙**하도록 바꾸고(문서·상수·코퍼스 매니페스트·샘플·라이선스),
+   불변식을 「페이지·i18n·서빙되는 문서에서 나가는 모든 상대 링크가 서빙되는가」로 일반화했다.
+   `.md` 는 `text/markdown` 이면 브라우저가 **내려받아 버리므로** `_headers` 에서 `text/plain` 으로 준다.
 
 ---
 

@@ -211,7 +211,7 @@ ${rows((x) => x.tokenRatioVsEnglish.toFixed(2) + '×')}
 ## 3. 문체별 편차 (o200k_base, 자/토큰)
 
 TED2020 은 구어체 산문이다. LLM 이 실제로 쏟아내는 설명문·코드·대화는 밀도가 다르므로,
-같은 뜻으로 직접 작성한 병렬 샘플([\`corpus/samples/\`](../corpus/samples/), CC0)로 따로 잰다.
+같은 뜻으로 직접 작성한 병렬 샘플([\`corpus/samples/\`](../corpus/README.md), CC0)로 따로 잰다.
 
 | 문체 | 영어 | 한국어 | 격차 |
 |---|---:|---:|---:|

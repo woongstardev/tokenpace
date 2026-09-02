@@ -54,7 +54,12 @@ async function checkNoExternalRequests() {
   const check = 'no external requests';
   const html = await readFile(path.join(ROOT, 'index.html'), 'utf8');
 
+  // `rel="canonical"` is the one absolute href a browser never fetches — it
+  // names the page, it does not request anything. Everything else that carries
+  // a src or href is a request, so the rule stays absolute for all of them.
+  const canonicalHref = html.match(/<link\s+rel="canonical"\s+href="([^"]*)"/)?.[1];
   for (const [, attr, value] of html.matchAll(/\s(src|href)\s*=\s*"([^"]*)"/g)) {
+    if (value === canonicalHref) continue;
     if (/^(https?:)?\/\//.test(value)) fail(check, `index.html has a remote ${attr}: ${value}`);
   }
 
@@ -213,19 +218,52 @@ async function checkLocalAssets() {
   if (!failures.some((f) => f.startsWith(check))) ok(`${check} (${checked} references)`);
 }
 
-/* ───────────────────────────────────── 8. the deploy ships the site only */
+/* ──────────────────────────── 8. the deploy ships the site, and all of it */
 
 /**
- * The deployed site is index.html plus assets/. Everything else here exists to
- * make the numbers checkable, and it is checkable in the repository — uploading
- * it would publish files with no reader and no route into the page.
+ * The site is the page plus the evidence the page cites. Two ways that stops
+ * being true, both silent:
  *
- * Two ways that quietly stops being true: a new top-level entry joins the
- * upload because nobody thought about it, or an ignore rule grows until it
- * swallows something the page loads. This checks both directions, and that the
- * Worker is still script-free (docs/BRIEF.md §5).
+ *   - something the page links to is left out of the upload. The deploy
+ *     succeeds and the link 404s in production. This is not hypothetical: the
+ *     footer links to docs/token-density.md, and the first version of
+ *     .assetsignore excluded all of docs/.
+ *   - something internal is swept in. An internal note sitting at a public URL
+ *     is not a 404, so nothing would ever report it.
+ *
+ * So this computes the served set exactly and checks it from both ends, plus
+ * that the Worker is still script-free and still advertises the origin it
+ * deploys to (docs/BRIEF.md §5, §6-3).
  */
-const SITE_ENTRIES = new Set(['index.html', 'assets', '_headers']);
+
+/** Top-level entries that ship even though no rule lists them. */
+const SERVED_TOP_LEVEL = new Set([
+  'index.html',   // the page
+  'assets',       // its styles, scripts, data and vendored tokenizer
+  '_headers',     // read by the platform, never served as a file
+  'data',         // the sourced constants the measurements derive from
+  'corpus',       // the manifest and the CC0 samples (cache/ is excluded)
+  'docs',         // the two measurement documents (the rest is excluded)
+  'LICENSE',      // MIT, for the code
+  'LICENSES.md',  // CC BY 4.0 / CC0, for what the site actually distributes
+]);
+
+/** Paths that must never reach a public URL, whatever else changes. */
+const MUST_NOT_SHIP = [
+  'docs/BRIEF.md',
+  'docs/review-request-20260902.md',
+  'docs/screenshots',
+  'CLAUDE.md',
+  'AGENTS.md',
+  'README.md',
+  'tools',
+  'tests',
+  '.git',
+  '.github',
+  'corpus/cache',
+  'wrangler.jsonc',
+  '.assetsignore',
+];
 
 /** Enough of JSONC to read wrangler.jsonc: comments out, strings untouched. */
 function stripJsonComments(text) {
@@ -249,31 +287,31 @@ function stripJsonComments(text) {
 }
 
 /**
- * The subset of .gitignore syntax .assetsignore is allowed to use: a
- * root-anchored name, or a root-anchored `*.ext` glob. Nothing else.
+ * Relative link targets a reader can follow out of one file.
  *
- * The anchor is not a style preference. A .gitignore rule without a leading
- * slash matches at every depth, so `data/` also hides `assets/data/`, which is
- * where the page reads its density figures from. Wrangler reports no error for
- * that — the file is simply absent and the page 404s at runtime (measured
- * against workerd, 2026-09-02). checkDeployManifest therefore rejects an
- * unanchored rule outright instead of reasoning about what it might match.
+ * Markdown links and HTML hrefs both count, and so do the hrefs inside the
+ * i18n strings — the footer's links to the measurement documents live there,
+ * not in index.html, which is exactly why nothing was checking them.
  */
-function ignoreMatches(pattern, name) {
-  const p = pattern.replace(/^\//, '').replace(/\/+$/, '');
-  if (p === name) return true;
-  if (p.startsWith('*.')) return name.endsWith(p.slice(1));
-  return false;
+function linkTargets(source) {
+  return [
+    ...[...source.matchAll(/\]\(([^)\s]+)\)/g)].map((m) => m[1]),
+    ...[...source.matchAll(/\s(?:src|href)\s*=\s*["']([^"']+)["']/g)].map((m) => m[1]),
+  ]
+    .map((t) => t.split(/[?#]/)[0])
+    .filter((t) => t && !/^(https?:|data:|mailto:|#)/.test(t));
 }
 
 async function checkDeployManifest() {
-  const check = 'the deploy ships the site and nothing else';
+  const check = 'the deploy ships the site, and all of it';
   const configPath = path.join(ROOT, 'wrangler.jsonc');
   const ignorePath = path.join(ROOT, '.assetsignore');
 
   if (!(await exists(configPath)) || !(await exists(ignorePath))) {
     return fail(check, 'wrangler.jsonc and .assetsignore must both exist');
   }
+
+  /* ── the Worker itself */
 
   let config;
   try {
@@ -289,6 +327,8 @@ async function checkDeployManifest() {
     fail(check, 'assets.directory must be "./" — .assetsignore is written against the repository root');
   }
 
+  /* ── the rules, which must stay literal enough to compute a served set */
+
   const patterns = (await readFile(ignorePath, 'utf8'))
     .split('\n')
     .map((line) => line.trim())
@@ -296,23 +336,78 @@ async function checkDeployManifest() {
 
   for (const pattern of patterns) {
     if (!pattern.startsWith('/')) {
-      fail(check, `.assetsignore rule "${pattern}" is not anchored — write "/${pattern}". Unanchored, it also hides assets/${pattern}`);
+      fail(check, `.assetsignore rule "${pattern}" is not anchored — write "/${pattern}". Unanchored, it also matches assets/${pattern}`);
+    }
+    if (/[*?[\]]/.test(pattern) || pattern.startsWith('!')) {
+      fail(check, `.assetsignore rule "${pattern}" uses a glob or a negation; keep rules literal so the served set stays computable`);
+    }
+  }
+  if (failures.some((f) => f.startsWith(check))) return;
+
+  const excluded = patterns.map((p) => p.replace(/^\//, '').replace(/\/+$/, ''));
+  const isServed = (relPath) =>
+    !excluded.some((e) => relPath === e || relPath.startsWith(`${e}/`));
+
+  /* ── nothing internal escapes */
+
+  for (const secret of MUST_NOT_SHIP) {
+    if (isServed(secret)) fail(check, `${secret} would be served at a public URL; add it to .assetsignore`);
+  }
+
+  /* ── no new top-level entry joins the upload unnoticed */
+
+  for (const entry of await readdir(ROOT)) {
+    if (SERVED_TOP_LEVEL.has(entry)) continue;
+    if (!isServed(entry)) continue;
+    fail(check, `${entry} would be uploaded; add it to .assetsignore, or to SERVED_TOP_LEVEL if the site really needs it`);
+  }
+
+  /* ── and everything the site links to is actually there */
+
+  const html = await readFile(path.join(ROOT, 'index.html'), 'utf8');
+  const canonical = html.match(/<link\s+rel="canonical"\s+href="([^"]*)"/)?.[1];
+  const sources = [['index.html', html]];
+  for (const file of await walk(path.join(ROOT, 'assets', 'js'))) {
+    sources.push([rel(file), await readFile(file, 'utf8')]);
+  }
+  for (const doc of await walk(path.join(ROOT, 'docs'))) {
+    if (doc.endsWith('.md') && isServed(rel(doc))) sources.push([rel(doc), await readFile(doc, 'utf8')]);
+  }
+  const corpusReadme = path.join(ROOT, 'corpus', 'README.md');
+  if (isServed('corpus/README.md') && (await exists(corpusReadme))) {
+    sources.push(['corpus/README.md', await readFile(corpusReadme, 'utf8')]);
+  }
+
+  for (const [from, source] of sources) {
+    for (const target of linkTargets(source)) {
+      const resolved = path.posix.normalize(path.posix.join(path.posix.dirname(from), target));
+      if (resolved.startsWith('..')) continue;               // outside the repo, not ours
+      if (!(await exists(path.join(ROOT, resolved)))) continue; // checkLinks reports missing files
+      if (!isServed(resolved)) {
+        fail(check, `${from} links to ${target}, which .assetsignore keeps out of the deploy — it would 404 in production`);
+      }
     }
   }
 
-  for (const entry of await readdir(ROOT)) {
-    const rule = patterns.find((p) => ignoreMatches(p, entry));
-    if (SITE_ENTRIES.has(entry)) {
-      if (rule) fail(check, `.assetsignore rule "${rule}" excludes ${entry}, which the site needs`);
-    } else if (!rule) {
-      fail(check, `${entry} would be uploaded; add it to .assetsignore or to the site itself`);
+  /* ── the page advertises the origin it deploys to */
+
+  const route = (config.routes ?? []).find((r) => r.custom_domain)?.pattern;
+  if (canonical && route) {
+    const origin = `https://${route}/`;
+    if (!canonical.startsWith(origin)) {
+      fail(check, `index.html says canonical ${canonical} but wrangler.jsonc deploys to ${route}`);
+    }
+    for (const [, value] of html.matchAll(/property="og:(?:url|image)"\s+content="([^"]*)"/g)) {
+      if (!value.startsWith(origin)) fail(check, `og tag points at ${value}, outside the deployed origin ${origin}`);
+      const asset = value.slice(origin.length);
+      if (asset && !(await exists(path.join(ROOT, asset)))) fail(check, `og tag points at missing ${asset}`);
+      if (asset && !isServed(asset)) fail(check, `og tag points at ${asset}, which is not deployed`);
     }
   }
 
   if (!failures.some((f) => f.startsWith(check))) ok(check);
 }
 
-/*
 /* ──────────────────────────────────────────────────────────────────── run */
 
 console.log('Checking project invariants...\n');

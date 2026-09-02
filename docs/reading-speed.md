@@ -2,7 +2,7 @@
 
 # 읽기 속도 → tok/s 환산
 
-- **측정일**: 2026-09-01
+- **측정일**: 2026-09-02
 - **재현**: `cd tools && npm run derive`
 - **입력**: [`data/reading-speed-sources.json`](../data/reading-speed-sources.json) (사람이 쓴 출처 있는 상수)
   × [`docs/token-density.md`](token-density.md) (실측 밀도)
