@@ -60,6 +60,9 @@ export const STRINGS = {
       `<strong>토큰 밀도</strong> — ${lang} 기준 1토큰 ≈ ${cpt}자 (${tok}). TED2020 병렬 코퍼스 3,000 문장쌍 실측, ${date}.`,
     evidenceReading: (rate, unit, source) =>
       `<strong>읽기 속도</strong> — 기본값 ${rate} ${unit}. 출처: ${source}`,
+    evidenceSpread: (lo, hi) =>
+      `<strong>개인차</strong> — 이 기준선은 인구 평균입니다. 개인차 범위의 양 끝에서는 ` +
+      `${lo} ~ ${hi} tok/s 가 되지만, 35 tok/s 판정은 어느 끝에서도 바뀌지 않습니다. 직접 재보세요.`,
     evidenceFidelity: {
       precomputed: '<strong>토큰 경계</strong> — 실제 토크나이저로 빌드 시점에 계산한 정확한 경계입니다.',
       exact: '<strong>토큰 경계</strong> — 브라우저에서 실제 토크나이저로 계산했습니다.',
@@ -145,6 +148,10 @@ export const STRINGS = {
       `<strong>Token density</strong> — one token ≈ ${cpt} characters in ${lang} (${tok}). Measured on 3,000 TED2020 sentence pairs, ${date}.`,
     evidenceReading: (rate, unit, source) =>
       `<strong>Reading speed</strong> — default ${rate} ${unit}. Source: ${source}`,
+    evidenceSpread: (lo, hi) =>
+      `<strong>Individual variation</strong> — this baseline is a population mean. At the ends ` +
+      `of the spread it becomes ${lo}–${hi} tok/s, and the verdict at 35 tok/s holds at either ` +
+      `end. Measure your own.`,
     evidenceFidelity: {
       precomputed: '<strong>Token boundaries</strong> — exact, computed by the real tokenizer at build time.',
       exact: '<strong>Token boundaries</strong> — exact, computed in your browser.',

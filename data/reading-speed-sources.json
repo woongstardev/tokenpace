@@ -14,7 +14,10 @@
       "unit": "word",
       "rate": 238,
       "rateUnit": "words/min",
-      "range": [175, 300],
+      "range": [
+        175,
+        300
+      ],
       "mode": "silent, non-fiction",
       "source": {
         "citation": "Brysbaert, M. (2019). How many words do we read per minute? A review and meta-analysis of reading rate. Journal of Memory and Language, 109, 104047.",
@@ -33,6 +36,11 @@
       "rate": 549.7,
       "rateUnit": "chars/min",
       "sd": 348.9,
+      "range": [
+        200.8,
+        898.6
+      ],
+      "rangeBasis": "평균 ± 1 SD (549.7 ± 348.9). 출처가 범위로 보고한 것이 아니라 SD 에서 파생한 값이다 — en 의 range 와 형식을 맞춰 화면이 한 경로로 표기하기 위한 것.",
       "mode": "silent (reading only), 10 pt",
       "source": {
         "citation": "송지호, 김재형, 형성민 (2016). 한국어 읽기 속도 측정 애플리케이션의 유효성 및 정상인의 읽기 속도에 대한 사전 연구. 대한안과학회지, 57(4), 642-649.",

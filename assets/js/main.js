@@ -500,6 +500,14 @@ function renderEvidence() {
     const unit = p.unit === 'word' ? s.unitWordsPerMin : s.unitCharsPerMin;
     reading.innerHTML = s.evidenceReading(p.rate, unit, `<a href="${p.sourceUrl}">${p.source}</a>`);
     nodes.push(reading);
+
+    // The mean is the weakest part of the claim, so the page says so itself
+    // rather than leaving it to docs/reading-speed.md.
+    if (p.readerSpread) {
+      const spread = el('p', 'evidence-line');
+      spread.innerHTML = s.evidenceSpread(p.readerSpread[0], p.readerSpread[1]);
+      nodes.push(spread);
+    }
   }
 
   const fidelity = el('p', `evidence-line fidelity fidelity--${state.fidelity}`);

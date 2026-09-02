@@ -96,6 +96,7 @@ async function main() {
               rateUnit: p.rateUnit,
               unit: src.unit,
               tokensPerSecond: p.tokensPerSecond,
+              readerSpread: p.readerSpread,
               source: p.source,
               sourceUrl: p.sourceUrl,
             }

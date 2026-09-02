@@ -96,6 +96,10 @@ export const READING_PACE = {
       "gemma-3": 4.93,
       "mistral-small": 4.72
     },
+    "readerSpread": [
+      1.97,
+      8.8
+    ],
     "source": "송지호, 김재형, 형성민 (2016). 한국어 읽기 속도 측정 애플리케이션의 유효성 및 정상인의 읽기 속도에 대한 사전 연구. 대한안과학회지, 57(4), 642-649.",
     "sourceUrl": "https://www.jkos.org/upload/pdf/JKOS057-04-17.pdf"
   },
@@ -112,6 +116,10 @@ export const READING_PACE = {
       "gemma-3": 4.93,
       "mistral-small": 4.91
     },
+    "readerSpread": [
+      3.48,
+      5.97
+    ],
     "source": "Brysbaert, M. (2019). How many words do we read per minute? A review and meta-analysis of reading rate. Journal of Memory and Language, 109, 104047.",
     "sourceUrl": "https://doi.org/10.1016/j.jml.2019.104047"
   }

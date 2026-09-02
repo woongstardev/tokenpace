@@ -62,6 +62,16 @@ async function main() {
       perTokenizer[tk.id] = Number(toTokensPerSecond(spec, d).toFixed(2));
     }
     const values = Object.values(perTokenizer);
+
+    // How much does the conclusion move if the reader is not the average one?
+    // Both languages now publish a `range` (English as reported, Korean derived
+    // from its SD), so the spread is one code path. It is computed on the
+    // current tokenizer because that is the number the page shows.
+    const modern = density.tokenizers.o200k_base.languages[lang.id];
+    const spread = spec.range
+      ? spec.range.map((r) => Number(toTokensPerSecond({ ...spec, rate: r }, modern).toFixed(2)))
+      : null;
+
     out.languages[lang.id] = {
       available: true,
       rate: spec.rate,
@@ -69,6 +79,8 @@ async function main() {
       mode: spec.mode,
       tokensPerSecond: perTokenizer,
       tokensPerSecondRange: [Math.min(...values), Math.max(...values)],
+      readerSpread: spread,
+      readerSpreadBasis: spec.rangeBasis ?? spec.source.basis ?? null,
       source: spec.source.citation,
       sourceUrl: spec.source.url,
     };
@@ -105,6 +117,15 @@ function render(out, sources, density) {
     x50: Math.round(50 / Math.max(...allValues)),
     x300: Math.round(300 / Math.min(...allValues)),
   };
+
+  const SENSITIVITY = availableLangs
+    .filter((l) => out.languages[l.id].readerSpread)
+    .map((l) => {
+      const r = out.languages[l.id];
+      const [lo, hi] = r.readerSpread;
+      return `- **${l.label}** ${r.rate} ${r.rateUnit} 의 개인차 범위 → **${lo} ~ ${hi} tok/s**`;
+    })
+    .join('\n');
 
   const header = `| 토크나이저 | ${availableLangs.map((l) => l.label).join(' | ')} |\n|---|${availableLangs
     .map(() => '---:')
@@ -170,6 +191,17 @@ ${rows}
 
 ⇒ 디코딩 속도를 더 올려도 「읽는 동안 기다리지 않는다」는 이미 오래전에 달성됐다.
 남은 체감 변수는 **첫 토큰까지의 대기(TTFT)** 와 **응답의 길이**지 tok/s 가 아니다.
+
+### 평균이 아닌 독자라면 (민감도)
+
+이 결론이 평균값 하나에 얼마나 매달려 있는지가 중요하다. 개인차 범위의 양 끝에서 다시 재면
+(o200k_base 기준):
+
+${SENSITIVITY}
+
+⇒ **35 tok/s 판정은 어느 끝에서도 안 바뀐다.** 뒤집히는 것은 5 tok/s 레인뿐이고,
+그것이 그 레인이 화면에 있는 이유다. 결론이 걸려 있는 것은 평균값이 아니라 자릿수다 —
+그래서 개인 측정 기능이 인구 평균보다 위에 있다.
 
 ⚠️ 단, 이것은 **읽는 속도**지 **훑는 속도**가 아니다. 코드·표·긴 목록처럼 눈으로 건너뛰며
 읽는 출력에서는 사람의 유효 처리 속도가 훨씬 높아지고, 그때는 tok/s 가 다시 체감에 들어온다.
