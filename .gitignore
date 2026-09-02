@@ -5,3 +5,4 @@ corpus/cache/
 tools/node_modules/
 .wrangler/
 CLAUDE.md
+.claude/settings.local.json

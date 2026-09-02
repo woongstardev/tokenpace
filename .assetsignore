@@ -47,6 +47,7 @@
 /corpus/cache/
 
 # ── repository and deploy plumbing
+/.claude/
 /.git/
 /.github/
 /.gitignore
