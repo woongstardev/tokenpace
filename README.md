@@ -1,5 +1,7 @@
 # tokenpace
 
+[![CI](https://github.com/woongstardev/tokenpace/actions/workflows/ci.yml/badge.svg)](https://github.com/woongstardev/tokenpace/actions/workflows/ci.yml)
+
 **How fast is a tok/s number, really — in your language, against your reading speed?**
 
 Benchmarks report tokens per second. People read characters. Converting one into
@@ -131,9 +133,20 @@ node tools/capture.mjs
 They are committed rather than checked: a screenshot of an animation is never
 byte-identical twice, so CI has no way to verify one.
 
-CI runs those three on every push, and re-derives every published figure from the
-raw corpora weekly — if a fresh run ever disagrees with what is committed, the
-numbers in `docs/` have stopped being reproducible and the build fails.
+CI runs those three on every push. Separately, once a week, it does the whole
+thing again from nothing: downloads the corpora from
+[OPUS](https://opus.nlpl.eu/TED2020/corpus/version/TED2020) over the network,
+checks them against the committed hashes, re-runs every script and diffs the
+result against what is in the repository. A single changed digit fails the
+build, because at that point the numbers in `docs/` are no longer the numbers
+the scripts produce.
+
+That job is the one claim this project cannot afford to have untested, so it
+has been run end-to-end on demand rather than waited for:
+[run 33638579970](https://github.com/woongstardev/tokenpace/actions/runs/33638579970)
+re-derived all six tokenizers × four languages from a fresh download and came
+out identical, in 55 seconds. You can do the same — the workflow is
+`workflow_dispatch`-enabled, so anyone with a fork can press the button.
 
 ## How it is built
 
