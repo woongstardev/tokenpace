@@ -1,6 +1,7 @@
 # tokenpace
 
 [![CI](https://github.com/woongstardev/tokenpace/actions/workflows/ci.yml/badge.svg)](https://github.com/woongstardev/tokenpace/actions/workflows/ci.yml)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22265787.svg)](https://doi.org/10.5281/zenodo.22265787)
 
 **How fast is a tok/s number, really — in your language, against your reading speed?**
 
@@ -99,16 +100,23 @@ would be worse than an empty field. The reasoning is recorded in
 The measurements are the product here, so they come with a citation:
 
 > Yang, J. (2026). *tokenpace: token density by language, and reading speed
-> converted to tok/s* (measured 2026-09-02).
-> <https://tokenpace.woongstar.com/>
+> converted to tok/s* (measured 2026-09-02). Zenodo.
+> <https://doi.org/10.5281/zenodo.22265787>
+
+That DOI is the concept DOI: it always resolves to the most recent archived
+release. The release this one was minted from, v1.0.0, has its own —
+[10.5281/zenodo.22265788](https://doi.org/10.5281/zenodo.22265788) — and so
+will each release after it. Cite the concept DOI unless you need to pin the
+exact figures you read, in which case cite the version.
 
 [`CITATION.cff`](CITATION.cff) carries the machine-readable version — GitHub's
-"Cite this repository" button reads it, as do Zotero and cffconvert. It ships
-with the site as well as the repository, so a citation keeps resolving even if
-this repository does not.
+"Cite this repository" button reads it, as do Zotero and cffconvert, and Zenodo
+read it to build the archive record. It ships with the site as well as the
+repository, so a citation keeps resolving even if this repository does not; the
+Zenodo archive is a third copy, held independently of both.
 
 The licence to respect is **CC BY 4.0** on `data/` and `docs/`: use the numbers
-freely, name where they came from. There is no DOI yet.
+freely, name where they came from.
 
 ## Reproducing the numbers
 

@@ -122,7 +122,7 @@ tok/s 가 아니다.
 이 문서의 수치는 **CC BY 4.0** 이다 — 쓰는 데 허락이 필요 없고, 출처 표기만 요구한다.
 
 > Yang, J. (2026). *tokenpace: 언어별 토큰 밀도와 tok/s 로 환산한 읽기 속도*
-> (측정 2026-09-02). <https://tokenpace.woongstar.com/>
+> (측정 2026-09-02). Zenodo. <https://doi.org/10.5281/zenodo.22265787>
 
 기계가 읽는 형식은 [`CITATION.cff`](../CITATION.cff) 에 있다 (CFF 1.2.0).
 
@@ -264,6 +264,6 @@ The figures in this document are **CC BY 4.0**: use them without asking, name
 where they came from.
 
 > Yang, J. (2026). *tokenpace: token density by language, and reading speed
-> converted to tok/s* (measured 2026-09-02). <https://tokenpace.woongstar.com/>
+> converted to tok/s* (measured 2026-09-02). Zenodo. <https://doi.org/10.5281/zenodo.22265787>
 
 The machine-readable form is [`CITATION.cff`](../CITATION.cff) (CFF 1.2.0).

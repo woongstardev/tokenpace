@@ -571,6 +571,16 @@ async function checkCitation() {
   const doi = scalar('doi');
   if (doi !== undefined && !/^10\.\d{4,9}\/\S+$/.test(doi)) {
     fail(check, `doi is not a DOI: ${doi}`);
+  } else if (doi !== undefined) {
+    // The whole point of having one is that a reader lands on it. The
+    // measurement documents generate their citation from this file, so they
+    // cannot disagree about the string — but they can stop printing it, and
+    // nothing else would notice.
+    for (const rel of ['docs/reading-speed.md', 'docs/token-density.md']) {
+      const text = await readFile(path.join(ROOT, rel), 'utf8');
+      const hits = text.split(doi).length - 1;
+      if (hits < 2) fail(check, `${rel} cites the DOI ${hits} time(s); both language halves need it`);
+    }
   }
 
   if (!failures.some((f) => f.startsWith(check))) ok(check);

@@ -10,6 +10,18 @@
  * the measurements has to carry the terms they come under.
  */
 
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
+import { REPO_ROOT } from './corpus-config.mjs';
+
+/**
+ * The DOI is read from CITATION.cff rather than restated here, so there is
+ * exactly one place it lives and the documents cannot drift from the record
+ * Zenodo actually minted. check-site.mjs holds CITATION.cff to the repository.
+ */
+const CITATION = readFileSync(path.join(REPO_ROOT, 'CITATION.cff'), 'utf8');
+const DOI = CITATION.match(/^doi:[ \t]*(\S+)[ \t]*$/m)?.[1];
+
 /** @param {string} measuredAt ISO date the figures on the page were measured. */
 export function citationBlock(measuredAt) {
   const year = measuredAt.slice(0, 4);
@@ -18,7 +30,7 @@ export function citationBlock(measuredAt) {
 이 문서의 수치는 **CC BY 4.0** 이다 — 쓰는 데 허락이 필요 없고, 출처 표기만 요구한다.
 
 > Yang, J. (${year}). *tokenpace: 언어별 토큰 밀도와 tok/s 로 환산한 읽기 속도*
-> (측정 ${measuredAt}). <https://tokenpace.woongstar.com/>
+> (측정 ${measuredAt}). Zenodo.${DOI ? ` <https://doi.org/${DOI}>` : ' <https://tokenpace.woongstar.com/>'}
 
 기계가 읽는 형식은 [\`CITATION.cff\`](../CITATION.cff) 에 있다 (CFF 1.2.0).`;
 }
@@ -32,7 +44,7 @@ The figures in this document are **CC BY 4.0**: use them without asking, name
 where they came from.
 
 > Yang, J. (${year}). *tokenpace: token density by language, and reading speed
-> converted to tok/s* (measured ${measuredAt}). <https://tokenpace.woongstar.com/>
+> converted to tok/s* (measured ${measuredAt}). Zenodo.${DOI ? ` <https://doi.org/${DOI}>` : ' <https://tokenpace.woongstar.com/>'}
 
 The machine-readable form is [\`CITATION.cff\`](../CITATION.cff) (CFF 1.2.0).`;
 }
