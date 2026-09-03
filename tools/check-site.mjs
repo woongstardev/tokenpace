@@ -475,6 +475,29 @@ async function checkUnmeasuredDefault() {
     fail(check, 'index.html no longer links to data/ttft-sources.json, so the reasoning is unreachable from the page');
   }
 
+  // One configuration has now been measured (data/ttft-hardware.json). It is
+  // the only figure in this repository CI cannot re-derive, so it has to keep
+  // saying so — a number that quietly joins the reproducible ones is worse
+  // than no number, because every other check here would vouch for it.
+  const hardwarePath = path.join(ROOT, 'data', 'ttft-hardware.json');
+  if (await exists(hardwarePath)) {
+    const hw = JSON.parse(await readFile(hardwarePath, 'utf8'));
+    if (hw.reproducedByCI !== false) {
+      fail(check, 'data/ttft-hardware.json must declare reproducedByCI: false — CI cannot re-derive a timing measured on one machine');
+    }
+    for (const cfg of hw.configurations ?? []) {
+      if (!cfg.accelerator || !cfg.model) {
+        fail(check, 'every measured TTFT configuration must name its accelerator and model, or the figure means nothing');
+      }
+      if (!cfg.byPromptLength?.length) {
+        fail(check, `${cfg.id}: a TTFT with no prompt length is not a measurement of anything`);
+      }
+    }
+    if (record.representativeValue?.available !== false) {
+      fail(check, 'measuring one machine does not create a representative value; representativeValue.available must stay false');
+    }
+  }
+
   if (!failures.some((f) => f.startsWith(check))) ok(check);
 }
 

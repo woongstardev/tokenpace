@@ -23,6 +23,9 @@ export const STRINGS = {
     hintTtft: '모델이 첫 글자를 내놓기 전까지의 침묵. 디코딩 속도와 별개입니다.',
     hintTtftUnmeasured: '이 기본값은 측정값이 아닙니다. TTFT 는 모델이 아니라 배포 환경에 딸린 값이라, 쓰는 환경에서 직접 재서 넣어야 합니다.',
     hintTtftWhy: '왜 대푯값이 없나',
+    // 한 대의 기계에서 잰 값이다. 대푯값이 아니라 「길이에 따라 움직인다」를 보이려고 싣는다.
+    hintTtftMeasured: '실측 예 하나 (RTX 3090 · 27B Q4): 짧은 질문이면 0.8초, 1만 토큰짜리 문서를 붙여 넣으면 11초. 기계가 아니라 프롬프트 길이가 이 값을 정합니다.',
+    hintTtftMeasuredLink: '측정값 보기',
     labelReading: '내 읽기 속도',
     labelLanes: '비교할 속도 (tok/s)',
     addLane: '+ 레인 추가',
@@ -125,6 +128,10 @@ export const STRINGS = {
     hintTtft: 'The silence before the first character appears. Independent of decoding speed.',
     hintTtftUnmeasured: 'This default is not a measurement. TTFT belongs to a deployment, not to a model, so the figure to use is the one your own setup gives you.',
     hintTtftWhy: 'why there is no typical figure',
+    // One machine. Published to show that this scales with prompt length,
+    // not to offer a typical value.
+    hintTtftMeasured: 'One measured configuration (RTX 3090, 27B Q4): 0.8s for a short question, 11s for a 10k-token document. Prompt length sets this, more than the machine does.',
+    hintTtftMeasuredLink: 'see the measurements',
     labelReading: 'My reading speed',
     labelLanes: 'Speeds to compare (tok/s)',
     addLane: '+ Add lane',

@@ -53,9 +53,36 @@ it on purpose. What this project does *not* do is tell you what a typical TTFT
 is. There is no such number: TTFT belongs to a deployment — hardware,
 quantisation, prompt length, cache state, queue depth — and moves across more
 than two orders of magnitude between them. The slider starts at a round one
-second, the page says on its face that this is a setting rather than a
-measurement, and [`data/ttft-sources.json`](data/ttft-sources.json) records why
-and what would have to be measured to replace it.
+second and the page says on its face that this is a setting rather than a
+measurement.
+
+One configuration *has* been measured, in
+[`data/ttft-hardware.json`](data/ttft-hardware.json) — an RTX 3090 running a
+27B Q4 model under Ollama, which is the local-inference case the conclusion is
+aimed at:
+
+| Prompt | Time to first token |
+|---|---:|
+| 200 tokens — a short question | 0.84 s |
+| 1,386 tokens | 1.9 s |
+| 5,445 tokens | 5.6 s |
+| 10,812 tokens — a pasted document | 11.0 s |
+| model not resident (cold start) | +13.2 s |
+
+It is close to perfectly linear: **TTFT ≈ 0.95 ms per prompt token + 590 ms**,
+a prefill rate near 1,050 tok/s. Which is the actual lesson, and it is not a
+number to quote — it is that TTFT is a function of how much you gave the model
+to read. On the same machine, the same model, it moves thirteenfold between a
+question and a document. Eleven seconds of silence is the time you would spend
+reading 59 tokens at the reading speed measured above.
+
+That table is **reported, not reproduced**: it is the one figure here CI cannot
+re-derive, and it is deliberately kept out of the generated measurement
+documents so that nothing CI vouches for is contaminated by a timing from one
+machine. Re-run it with `node tools/measure-ttft.mjs --model <model>`, and see
+[issue #3](https://github.com/woongstardev/tokenpace/issues/3) if you have
+different hardware. [`data/ttft-sources.json`](data/ttft-sources.json) records
+why one machine still does not make a representative value.
 
 **3. There is a baseline.** "Is 35 tok/s fast" has no answer. "Does 35 tok/s
 outrun me" does. Human reading speed converts to roughly **5 tok/s** — close

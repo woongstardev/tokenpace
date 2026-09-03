@@ -36,9 +36,18 @@
   "attempted": [
     {
       "date": "2026-09-03",
-      "what": "Measuring TTFT on this project's own hardware — an RTX 3090 running a 27B Q4 model under Ollama, which is exactly the 'local LLM' case the product's conclusion is aimed at.",
-      "outcome": "Not run. The GPU was fully occupied by unrelated work at the time (24 GB of 24 GB resident, 100% utilisation). Measuring prefill latency on a saturated device would have produced a number about the queue rather than about the model, and would have disturbed the work already running.",
-      "next": "Run it when the device is idle. This is the single most useful thing that could replace this file's absences with figures."
+      "what": "TTFT 를 이 프로젝트의 하드웨어에서 실측 — RTX 3090 + 27B Q4 (Ollama). 제품의 결론이 겨냥하는 「로컬 LLM」이 정확히 이 경우다.",
+      "outcome": "첫 시도는 중단. GPU 가 다른 작업으로 점유 중이었고(2시간에 /api/chat 96건, MAX_LOADED_MODELS=1 이라 모델이 11~15초씩 반복 재적재), 그 상태의 측정은 prefill 이 아니라 큐를 재는 것이다. 기계가 비워진 뒤 다시 재서 성공했다.",
+      "result": "data/ttft-hardware.json. 폐기 회차 0건 (재적재가 낀 회차는 자동으로 버리게 돼 있는데 하나도 안 나왔다).",
+      "whatItShowed": "TTFT 가 상수가 아니라 **프롬프트 길이의 함수**라는 것이 수치로 나왔다. 이 구성에서 TTFT ≈ 0.95 ms/토큰 + 590 ms (prefill 약 1,050 tok/s) 로 거의 완전히 선형이다. 짧은 질문(200토큰)은 0.84초로 체감에 안 걸리고, 1만 토큰짜리 문서를 붙여 넣으면 11초 — 읽기 속도 5.4 tok/s 로 59토큰을 읽을 시간만큼 아무것도 안 나온다. 모델이 상주하지 않으면 여기에 콜드 스타트 13.2초가 더 붙는다.",
+      "whyThisDoesNotMakeARepresentativeValue": "한 대의 기계, 한 모델, 한 양자화다. 이 표가 보여주는 것은 「전형적인 TTFT 는 얼마다」가 아니라 「TTFT 를 하나의 숫자로 말할 수 없다」는 이 파일의 주장 자체다 — 같은 기계에서도 프롬프트 길이만으로 0.8초에서 11초까지 13배 움직인다. representativeValue.available 은 그대로 false 다.",
+      "aboutTheOldDefault": "슬라이더가 출처 없이 달고 있던 0.8초는 공교롭게도 이 구성의 **짧은 질문** 값(0.84초)과 거의 같다. 그래도 그것이 그 값을 정당화하지는 않는다 — 맞는 방향으로 우연히 떨어진 추측이지 측정이 아니었고, 프롬프트가 길어지는 순간 한 자릿수로 틀린다. 기록으로 남긴다."
     }
-  ]
+  ],
+  "measuredConfigurations": {
+    "file": "data/ttft-hardware.json",
+    "status": "보고된 값이지 재현된 값이 아니다 — CI 가 다시 뽑을 수 없고, 다른 기계는 다른 값이 나온다. 그것이 이 축의 성질이다.",
+    "rerun": "node tools/measure-ttft.mjs --model <모델>",
+    "wanted": "다른 하드웨어의 행. 이슈 #3 참고 — 위 파일이 그 본보기다."
+  }
 }

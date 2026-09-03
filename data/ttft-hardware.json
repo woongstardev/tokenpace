@@ -1,0 +1,85 @@
+{
+  "$comment": [
+    "TTFT measured on one machine. REPORTED, NOT REPRODUCED — unlike every",
+    "other figure in data/, CI cannot re-derive this, and a different machine",
+    "will get different numbers. That is the point: TTFT is a property of a",
+    "deployment. See data/ttft-sources.json.",
+    "",
+    "Re-run: node tools/measure-ttft.mjs --model <model>"
+  ],
+  "measuredAt": "2026-09-03",
+  "reproducedByCI": false,
+  "configurations": [
+    {
+      "id": "rtx3090-qwen3-27b-q4",
+      "model": "huihui-qwen3.8-27b-abliterated:UD-Q4_K_XL",
+      "accelerator": "NVIDIA GeForce RTX 3090",
+      "acceleratorMemory": "24576 MiB",
+      "driver": "595.84",
+      "runtime": "ollama 0.32.14",
+      "parameters": "27.3B",
+      "quantisation": "Q4_K_M",
+      "contextLength": 262144,
+      "method": {
+        "note": "Wall-clock from request to first streamed token, which is what a person waits.",
+        "promptSource": "corpus/samples/ (CC0), seeded shuffle, unique nonce per run to defeat the prefix cache",
+        "runsPerLength": 5,
+        "thinking": "disabled, so \"first token\" means the same thing across models",
+        "discardRule": "runs reporting load_duration > 500 ms had the model reloaded underneath them and are excluded"
+      },
+      "byPromptLength": [
+        {
+          "promptTokens": 200,
+          "warm": {
+            "n": 5,
+            "medianMs": 843.7,
+            "minMs": 780.7,
+            "maxMs": 911.8
+          },
+          "prefillMedianMs": 398.2,
+          "discardedForReload": 0
+        },
+        {
+          "promptTokens": 1386,
+          "warm": {
+            "n": 5,
+            "medianMs": 1931.3,
+            "minMs": 1908.1,
+            "maxMs": 2008.9
+          },
+          "prefillMedianMs": 1463.1,
+          "discardedForReload": 0
+        },
+        {
+          "promptTokens": 5445,
+          "warm": {
+            "n": 5,
+            "medianMs": 5616.9,
+            "minMs": 5418.3,
+            "maxMs": 5688.4
+          },
+          "prefillMedianMs": 5022.9,
+          "discardedForReload": 0
+        },
+        {
+          "promptTokens": 10812,
+          "warm": {
+            "n": 5,
+            "medianMs": 10967.3,
+            "minMs": 10770.5,
+            "maxMs": 11282.6
+          },
+          "prefillMedianMs": 10226.3,
+          "discardedForReload": 0
+        }
+      ],
+      "coldStart": {
+        "n": 3,
+        "medianMs": 13237.8,
+        "minMs": 13179.8,
+        "maxMs": 13307.7,
+        "note": "model not resident; includes reading weights from disk"
+      }
+    }
+  ]
+}
