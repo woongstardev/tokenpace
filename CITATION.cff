@@ -29,7 +29,11 @@ abstract: >-
   that is read rather than skimmed, a scope the project states rather than
   assumes. Every figure
   regenerates from the raw corpora with a committed script; a weekly CI job
-  re-derives them and fails if the result differs.
+  re-derives them and fails if the result differs. Since v1.1.0 it also
+  reports one measured TTFT configuration (RTX 3090, 27B Q4, Ollama), kept
+  apart from the reproduced figures: TTFT grew linearly from 0.84 s to 11.0 s
+  with prompt length on one machine, which is why no representative value is
+  given.
 
 keywords:
   - tokenization
@@ -43,13 +47,13 @@ repository-code: https://github.com/woongstardev/tokenpace
 url: https://tokenpace.woongstar.com/
 
 # The concept DOI, not the version DOI. It always resolves to the most recent
-# archived release, which is what someone citing "tokenpace" means — the
-# per-version DOI for v1.0.0 is 10.5281/zenodo.22265788, and each later release
-# gets its own. Minted by Zenodo from the GitHub release; this file is what it
+# archived release, which is what someone citing "tokenpace" means. Each
+# release also gets its own version DOI (v1.0.0's is 10.5281/zenodo.22265788);
+# the full list is on the Zenodo record. Minted by Zenodo from the GitHub release; this file is what it
 # read to get the author, title and licence right.
 doi: 10.5281/zenodo.22265787
-version: 1.0.0
-date-released: '2026-09-03'
+version: 1.1.0
+date-released: '2026-09-24'
 
 # The sources the measurements rest on. The reading-speed baseline is only as
 # good as these two, and both are cited on the site as well as here.

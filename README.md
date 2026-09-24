@@ -131,10 +131,10 @@ The measurements are the product here, so they come with a citation:
 > <https://doi.org/10.5281/zenodo.22265787>
 
 That DOI is the concept DOI: it always resolves to the most recent archived
-release. The release this one was minted from, v1.0.0, has its own —
-[10.5281/zenodo.22265788](https://doi.org/10.5281/zenodo.22265788) — and so
-will each release after it. Cite the concept DOI unless you need to pin the
-exact figures you read, in which case cite the version.
+release. Each release also has a version DOI of its own — v1.0.0's is
+[10.5281/zenodo.22265788](https://doi.org/10.5281/zenodo.22265788), and the
+record lists the rest. Cite the concept DOI unless you need to pin the exact
+figures you read, in which case cite the version.
 
 [`CITATION.cff`](CITATION.cff) carries the machine-readable version — GitHub's
 "Cite this repository" button reads it, as do Zotero and cffconvert, and Zenodo
