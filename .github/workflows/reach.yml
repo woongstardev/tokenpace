@@ -1,0 +1,63 @@
+name: Reach snapshot
+
+on:
+  schedule:
+    # Weekly, so GitHub's 14-day traffic window is sampled at least twice
+    # before it is discarded. See reach/README.md for what each column means
+    # and why rows overlap.
+    #
+    # ⚠️ Like the CI schedule, this one is switched off by GitHub after 60 days
+    # without repository activity — see CONTRIBUTING.md. A gap in the dates of
+    # reach/snapshots.csv is what that looks like from here.
+    - cron: '0 0 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+# Two runs racing to commit the same file would make one of them fail on push.
+concurrency:
+  group: reach
+  cancel-in-progress: false
+
+jobs:
+  snapshot:
+    name: Record reach
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # No dependency install: the script uses Node's own fetch.
+      #
+      # ⚠️ The traffic endpoints (views, clones) require push access to the
+      # repository. Whether the workflow's GITHUB_TOKEN qualifies is being
+      # verified on the first run; GitHub documents these endpoints under the
+      # Administration permission, which GITHUB_TOKEN cannot be granted. If the
+      # run fails with 403 on traffic/, the fix is a fine-grained PAT with
+      # read-only Administration on this repository, stored as a secret and
+      # passed here instead — not removing or skipping this step. A snapshot
+      # without traffic is the one this file exists to avoid.
+      - name: Take the snapshot
+        run: node tools/snapshot-reach.mjs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Commit only reach/snapshots.csv, by explicit path, and only when it
+      # changed — a same-day re-run that measured the same numbers is not news.
+      # A push rejected because main moved fails the job; re-running it is safe,
+      # because the script replaces a same-day row instead of adding one.
+      - name: Commit the snapshot
+        run: |
+          if [ -z "$(git status --porcelain -- reach/snapshots.csv)" ]; then
+            echo "No change in reach/snapshots.csv."
+            exit 0
+          fi
+          DATE=$(tail -n 1 reach/snapshots.csv | cut -d, -f1)
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- reach/snapshots.csv
+          git commit -m "chore(reach): weekly snapshot $DATE" -m "Agent: github-actions"
+          git push

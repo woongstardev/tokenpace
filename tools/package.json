@@ -16,7 +16,8 @@
     "check": "node check-site.mjs && node --test \"../tests/*.test.mjs\"",
     "check-a11y": "node check-a11y.mjs",
     "check-freshness": "node check-freshness.mjs",
-    "capture": "node capture.mjs"
+    "capture": "node capture.mjs",
+    "reach": "node snapshot-reach.mjs"
   },
   "devDependencies": {
     "@huggingface/transformers": "^3.7.0",

@@ -37,6 +37,8 @@
 /README.md
 /docs/BRIEF.md
 /docs/screenshots/
+# reach/ is the repository's own audience record, not evidence the page cites.
+/reach/
 
 # ── the harness: it proves the numbers, it is not one of them
 /tests/
