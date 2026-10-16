@@ -17,9 +17,16 @@
  * nothing and stores nothing (CONTRIBUTING.md, rules 3 and 4), and nothing in
  * this file touches the site.
  *
- * Fails loudly on any HTTP error or missing field, and writes nothing in that
- * case. A row of zeros from a failed request would be an invented number, and
- * a quiet one: zero reach is a plausible reading for a young repository.
+ * Fails loudly on any GitHub HTTP error or missing field, and writes nothing in
+ * that case. A row of zeros from a failed request would be an invented number,
+ * and a quiet one: zero reach is a plausible reading for a young repository.
+ *
+ * Zenodo is the one exception. When it cannot be read, its four cells are left
+ * empty — "not measured", never zero — and the GitHub columns are written
+ * anyway. GitHub's traffic window is gone in 14 days; Zenodo's counts are
+ * cumulative and next week's row recovers them. Letting a Zenodo outage take
+ * the GitHub row down with it lost the one thing this file exists to keep
+ * (2026-10-16: zenodo.org unreachable from both tower and the Actions runner).
  *
  * Idempotent per UTC date — a second run on the same day replaces that day's
  * row instead of adding another, so re-running a failed workflow is safe.
@@ -182,10 +189,26 @@ async function readRows() {
 
 const date = new Date().toISOString().slice(0, 10); // UTC, matching the weekly cron
 
-// Fetch everything before touching the file: a half-measured row is still an
-// invented one.
-const values = { date, ...(await github()), ...(await zenodo()) };
-const row = COLUMNS.map((c) => values[c]).join(',');
+/**
+ * Zenodo's columns as empty cells, with the reason on stderr — and, in Actions,
+ * as a warning annotation, so a run that kept only half a row does not look
+ * like a clean one.
+ */
+async function zenodoOrBlank() {
+  try {
+    return await zenodo();
+  } catch (err) {
+    const reason = err.cause ? `${err.message} (${err.cause.code ?? err.cause.message})` : err.message;
+    const message = `Zenodo not recorded, cells left empty: ${reason}`;
+    console.error(process.env.GITHUB_ACTIONS ? `::warning title=Zenodo not recorded::${message}` : `warning: ${message}`);
+    return {};
+  }
+}
+
+// Fetch everything before touching the file: a half-measured GitHub row is
+// still an invented one. A missing Zenodo is written as empty cells, not zeros.
+const values = { date, ...(await github()), ...(await zenodoOrBlank()) };
+const row = COLUMNS.map((c) => values[c] ?? '').join(',');
 
 const existing = await readRows();
 const kept = existing.filter((line) => !line.startsWith(`${date},`));
